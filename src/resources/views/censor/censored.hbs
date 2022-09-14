@@ -1,0 +1,375 @@
+<div class="container-stored-gift">
+  <div class="wrap-stored-gift">
+      <div>
+        <h3 class="list-gifts">Danh sách quà tặng</h3>
+        <div class="item-search">
+          <input type="text" class="input-search">
+          <i class="fa fa-search" aria-hidden="true" onclick="loadPage(1)"></i>
+        </div>
+
+      </div>
+
+      <table class="table mt-4 table-gifts">
+        <thead>
+          <tr>
+            <th scope="col" class="col-censor-id">ID</th>
+            <th scope="col" class="col-censor-gift">
+              Tên quà tặng
+              <a onclick="sortName()" id="sortName" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+              </a>
+            </th>
+            <th scope="col" class="col-censor-author">
+              Người tặng
+              <a onclick="sortAuthor()" id="sortAuthor" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+            </th>
+            <th scope="col" class="col-censor-time">
+              Thời gian tạo
+              <a onclick="sortTime()" id="sortTime" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+            </th>
+            <th scope="col" class="col-censor-status">
+              Trạng thái
+              <a onclick="sortStatus()" id="sortStatus" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+            </th>
+          </tr>
+        </thead>
+        <tbody id="wrap-all-list-gifts">
+          
+        </tbody>
+      </table>
+
+      <div class="pagi-btn">
+        <ul class="pagination">
+          <li class="page-item" id="pre"><a class="page-link" href="#" onclick="prePage()"><i
+                class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>
+          <li class="item-pagination">
+            {{!--
+          <li class="page-item"><a class="page-link" href="#" onclick="loadPage(1)">1</a></li>
+          <li class="page-item"><a class="page-link" href="#" onclick="loadPage(3)">3</a></li>
+          --}}
+          </li>
+          <li class="page-item" id="next"><a class="page-link" href="#" onclick="nextPage()"><i
+                class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>
+        </ul>
+      </div>
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="/public/js/pagination.js"></script>
+<script>
+
+
+  ///Code Pagination
+  var currentPage = 1;
+  var column ;
+  var type = '1' ;
+
+  function sortName() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortName').html('<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>')
+    } else {
+      type = '-1'
+      $('#sortName').html('<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>')
+    }
+    $('#sortAuthor').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortStatus').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'name'
+    loadPage(currentPage)
+  }
+
+  function sortAuthor() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortAuthor').html('<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>')
+    } else {
+      type = '-1'
+      $('#sortAuthor').html('<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>')
+    }
+    $('#sortName').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortStatus').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'author'
+    loadPage(currentPage)
+  }
+
+  function sortTime() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortTime').html('<i class="fa fa-sort-amount-asc" aria-hidden="true"></i>')
+
+    } else {
+      type = '-1'
+      $('#sortTime').html('<i class="fa fa-sort-amount-desc" aria-hidden="true"></i>')
+
+    }
+    $('#sortName').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortAuthor').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortStatus').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'createdAt'
+    loadPage(currentPage)
+  }
+
+  function sortStatus() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortStatus').html('<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>')
+
+    } else {
+      type = '-1'
+      $('#sortStatus').html('<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>')
+
+    }
+    $('#sortName').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortAuthor').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'status'
+    loadPage(currentPage)
+  }
+
+
+  function loadPage(page) {
+    currentPage = page
+    var valueSearch = $('.input-search').val();
+    $.ajax({
+      url: '/gifts/censored/get-all?page=' + page + '&name=' + valueSearch + '&column=' + column + '&type=' + type
+    })
+      .then(rs => {
+        $('#wrap-all-list-gifts').html('');
+        $('.item-pagination').html('');
+        for (let i = 0; i < rs.tongSoPage; i++) {
+          var itemLi = $(`
+                      <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                  `)
+          $('.item-pagination').append(itemLi);
+        }
+
+        for (let i = 0; i < rs.data.length; i++) {
+          const element = rs.data[i];
+          const timeCreate = element.createdAt.split('.')[0];
+          var item = $(`
+                          <tr class="tr-gifts" data-id="${element._id}" onclick="gotoCheck()">
+                            <th data-id="${element._id}"  scope="row" class="col-censor-id">
+                              <a class="link-to-gifts" href="/censored/${element.slug}">
+                              ${i + 1}</th>
+                              </a>
+                              <td data-id="${element._id}" class="col-censor-gift">
+                                <a class="link-to-gifts" href="/censored/${element.slug}">
+                                    ${element.name}
+                                </a>
+                              </td>
+                            <td data-id="${element._id}" class="col-censor-author" >
+                              <a class="link-to-gifts" href="/censored/${element.slug}" >
+                              ${element.author}</td>
+                              </a>
+                            <td data-id="${element._id}"  class="col-censor-time" >
+                              <a class="link-to-gifts" href="/censored/${element.slug}" >
+                              ${timeCreate}</td>
+                              </a>
+                            <td data-id="${element._id}"  class="col-censor-status">
+                              <a class="link-to-gifts status-gift" href="/censored/${element.slug}">${element.status}</a>
+                            </td>
+                          </tr>
+                  `)
+
+          $('#wrap-all-list-gifts').append(item);
+        }
+
+        const statusGifts = document.getElementsByClassName('status-gift');
+        for(var i = 0; i < statusGifts.length; i++) {
+          if(statusGifts[i].innerHTML == "Không được duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "red"
+          }
+          if(statusGifts[i].innerHTML == "Chờ xét duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "#FFD700"
+          }
+          if(statusGifts[i].innerHTML == "Đã được duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "lime"
+          }
+        }
+
+        const activeItem = $('.page-link');
+        for (i = 0; i < activeItem.length; i++) {
+            if(parseInt(activeItem[i].innerText) === currentPage) {
+                activeItem[i].classList.add("active");
+            }
+        }
+
+        var itemNone = $(`<h3 id="text-none">Hiện chưa có quà tặng nào.</h3>`)
+        if (rs.data.length === 0) {
+          $('#wrap-all-list-gifts').append(itemNone);
+        }
+
+        var textNone = document.getElementById('text-none');
+        var pre = document.getElementById('pre');
+        var next = document.getElementById('next');
+
+        if (textNone) {
+          pre.style.display = "none";
+          next.style.display = "none";
+        }
+        else {
+          pre.style.display = "block";
+          next.style.display = "block";
+        }
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+  loadPage(currentPage)
+
+  function prePage() {
+    currentPage--;
+    if (currentPage < 1) {
+      currentPage = 1;
+    }
+
+    var valueSearch = $('.input-search').val();
+    $.ajax({
+      url: '/gifts/censored/get-all?page=' + currentPage + '&name=' + valueSearch + '&column=' + column + '&type=' + type
+    })
+      .then(rs => {
+        $('#wrap-all-list-gifts').html('');
+        $('.item-pagination').html('');
+        for (let i = 0; i < rs.tongSoPage; i++) {
+          var itemLi = $(`
+                          <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                      `)
+          $('.item-pagination').append(itemLi);
+        }
+
+        for (let i = 0; i < rs.data.length; i++) {
+          const element = rs.data[i];
+          var item = $(`
+                        <tr class="tr-gifts" data-id="${element._id}" onclick="gotoCheck()">
+                            <th data-id="${element._id}"  scope="row" class="col-censor-id">
+                              <a class="link-to-gifts" href="/censored/${element.slug}">
+                              ${i + 1}</th>
+                              </a>
+                              <td data-id="${element._id}" >
+                                <a class="link-to-gifts" href="/censored/${element.slug}">
+                                    ${element.name}
+                                </a>
+                              </td>
+                            <td data-id="${element._id}" >
+                              <a class="link-to-gifts" href="/censored/${element.slug}" >
+                              ${element.author}</td>
+                              </a>
+                            <td data-id="${element._id}" >
+                              <a class="link-to-gifts" href="/censored/${element.slug}" >
+                              ${timeCreate}</td>
+                              </a>
+                            <td data-id="${element._id}">
+                              <a class="link-to-gifts status-gift" href="/gifts/${element.slug}">${element.status}</a>
+                            </td>
+                          </tr>
+                    `)
+          $('#wrap-all-list-gifts').append(item);
+        }
+
+        const activeItem = $('.page-link');
+        for (i = 0; i < activeItem.length; i++) {
+            if(parseInt(activeItem[i].innerText) === currentPage) {
+                activeItem[i].classList.add("active");
+            }
+        }
+
+        var itemNone = $(`<h3 class="text-none">Hiện chưa có quà tặng nào.</h3>`)
+        if (rs.data.length === 0) {
+          $('#wrap-all-list-gifts').append(itemNone);
+        }
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+
+  function nextPage() {
+    currentPage++;
+    var pageItem = $('.page-item')
+
+    if (currentPage > pageItem.length - 2) {
+      currentPage = pageItem.length - 2
+    }
+
+    var valueSearch = $('.input-search').val();
+    $.ajax({
+      url: '/gifts/censored/get-all?page=' + currentPage + '&name=' + valueSearch + '&column=' + column + '&type=' + type
+    })
+      .then(rs => {
+        $('#wrap-all-list-gifts').html('');
+        $('.item-pagination').html('');
+        for (let i = 0; i < rs.tongSoPage; i++) {
+          var itemLi = $(`
+                          <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                        `)
+          $('.item-pagination').append(itemLi);
+        }
+
+        for (let i = 0; i < rs.data.length; i++) {
+          const element = rs.data[i];
+          var item = $(`
+                        <tr class="tr-gifts" data-id="${element._id}" onclick="gotoCheck()">
+                            <th data-id="${element._id}"  scope="row">
+                              <a class="link-to-gifts" href="/censored/${element.slug}">
+                              ${i + 1}</th>
+                              </a>
+                              <td data-id="${element._id}" >
+                                <a class="link-to-gifts" href="/censored/${element.slug}">
+                                    ${element.name}
+                                </a>
+                              </td>
+                            <td data-id="${element._id}" >
+                              <a class="link-to-gifts" href="/censored/${element.slug}" >
+                              ${element.author}</td>
+                              </a>
+                            <td data-id="${element._id}" >
+                              <a class="link-to-gifts" href="/censored/${element.slug}" >
+                              ${timeCreate}</td>
+                              </a>
+                            <td data-id="${element._id}">
+                              <a class="link-to-gifts status-gift" href="/gifts/${element.slug}" >${element.status}</a>
+                            </td>
+                          </tr>
+                    `)
+          $('#wrap-all-list-gifts').append(item);
+        }
+
+        const activeItem = $('.page-link');
+        for (i = 0; i < activeItem.length; i++) {
+            if(parseInt(activeItem[i].innerText) === currentPage) {
+                activeItem[i].classList.add("active");
+            }
+        }
+
+        var itemNone = $(`<h3 class="text-none">Hiện chưa có quà tặng nào.</h3>`)
+        if (rs.data.length === 0) {
+          $('#wrap-all-list-gifts').append(itemNone);
+        }
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+
+  function gotoCheck() {
+      window.onclick = e => {
+        var userName = e.target.getAttribute('data-id')
+        const x = parseInt(userName)
+        if (x !== null) {
+            console.log(x);
+        }
+      }
+  }
+
+</script>

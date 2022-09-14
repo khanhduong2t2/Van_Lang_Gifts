@@ -1,0 +1,402 @@
+<div class="container-stored-gift container-edit-gift">
+    <div class="alert alert-danger" id="noti-no-change" style="display: none"></div>
+    <div class="mt-4 wrap-stored-gift">
+        <h3 class="text-update-gift">Cập nhật quà tặng</h3>
+        <form id="formEditGift" class="mt-4 form-user-detail" action="/gifts/{{gift._id}}?_method=PUT" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Tên quà tặng</label>
+                <input type="text" class="form-control" value="{{gift.name}}" id="name" name="name">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Mô tả</label>
+                <textarea class="form-control" id="description" name="description">{{gift.description}}</textarea>
+            </div>
+
+            <div class="item-form status-gift">
+                <label style="font-family:'Segoe UI'" for="description">Còn mới:</label>
+                <div class="range-wrap">
+                    <div class="range-value" id="rangeV"></div>
+                    <input id="range" type="range" min="0" max="100" value="{{gift.quality}}" step="1" id="quality" name="quality">
+                </div>
+            </div>
+
+            <div class="item-form">
+                <label style="font-family:'Segoe UI'" for="description">Thể loại: </label>
+                <p class="type-gift" style="display: none">{{gift.type}}</p>
+                <select id="theloai" name="type">
+                    <option value="Sách" >Sách</option>
+                    <option value="Đồ dùng học tập" >Đồ dùng học tập</option>
+                    <option value="Thiết bị điện tử" >Thiết bị điện tử</option>
+                    <option value="Vật dụng cá nhân" >Vật dụng cá nhân</option>
+                    <option value="Thời trang" >Thời trang</option>
+                    <option value="Phụ kiện" >Phụ kiện</option>
+                </select>
+            </div>
+
+            <label for="image0">Link image</label>
+            <div class="form-group"  id="formListImage">
+            </div>
+            <p id="them-link" style="color: rgb(0 165 236); font-size: 15px; margin-left: 5px;"> <i class="fa fa-plus" aria-hidden="true"></i> Thêm link</p>
+
+            <div class="form-group">
+                <label style="font-family:'Segoe UI'" for="formFile">Thêm ảnh từ máy của bạn: ( tối đa 3 ảnh ) </label>
+                <input type="file" class="form-control" name="images" id="formFile"  multiple>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="btnEditGift">Lưu lại</button>
+        </form>
+    </div>
+</div>
+
+<div style="display:none">
+    {{#each gift.image}}
+        <p class="item-image">{{this}}</p>
+    {{/each}}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script>
+    var valName;
+    var valDescription;
+    var valQuanlity;
+    var valImage0;
+    var valImage1;
+    var valImage2;
+    var typeGift = document.querySelector(".type-gift").innerHTML;
+
+    var valType;
+
+    const select = document.getElementById('theloai');
+
+    select.addEventListener('change', function handleChange(event) {
+        valType = select.options[select.selectedIndex].value;
+    })
+
+
+    $(document).ready(function(){
+        var formChange = document.querySelector(".form-user-detail");
+
+        valName = formChange.name.value;
+        valDescription = formChange.description.value;
+        valQuanlity = formChange.quality.value;
+        valImage0 = formChange.image0.value;
+        valImage1 = formChange.image1.value;
+        valImage2 = formChange.image2.value;
+    })
+
+
+
+    $( `option[value="${typeGift}"]`).attr('selected','selected')
+
+    var itemImage = $('.item-image');
+    for(var i = 0; i < itemImage.length; i++) {
+        var item = `<input type="text" class="form-control" value="${itemImage[i].innerHTML}" id="image${i}" name="image${i}">`
+        $('#formListImage').append(item);
+    }
+
+    var j = 0;
+    var formListImage = $('#formListImage');
+    for ( var i=0; i < formListImage.children().length; i++) {
+        if (formListImage.children()[i].value === " " || formListImage.children()[i].value === "") {
+            var idItem = '#'+formListImage.children()[i].id
+            $(idItem).hide()
+        } else {
+            j = j + 1;
+        }
+    }
+
+    if (j == 0) {
+        $('#image0').show()
+    }
+    $('#them-link').click(function() {
+        if (j == 0) {
+            j = j + 1;
+        }
+        if (j == 1) {
+            $('#image1').show();
+        }
+        if (j == 2) {
+            $('#image2').show();
+            $('#them-link').hide();
+        }
+        j = j + 1;
+    })
+
+    var typeArray = ['jpg','JPG', 'jpeg', 'JPEG', 'png', 'PNG', 'gif', 'GIF']
+    var files = document.querySelector("#formFile");
+
+    files.addEventListener('change', updateValue);
+    function updateValue(e) {
+        for (var i = 0; i < files.files.length; i++) {
+            var lengthFile = files.files[i].name.split(".");
+            var typeFile = files.files[i].name.split(".")[lengthFile.length - 1];;
+            if( typeArray.includes(typeFile) === false) {
+                $("#noti-no-change").html("Vui lòng chọn file là hình ảnh")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 30) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+                files.value = ""
+            };
+        }
+        if(files.files.length > 3) {
+            $("#noti-no-change").html("Vui lòng chỉ chọn nhiều nhất 3 ảnh")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 30) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+            files.value = "";
+        }
+    }
+
+    
+
+    $('#btnEditGift').click(function (e) {
+        e.preventDefault();
+
+        var formChange = document.querySelector(".form-user-detail");
+        var valName1 = formChange.name.value;
+        var valDescription1 = formChange.description.value;
+        var valQuanlity1 = formChange.quality.value;
+        var valImage01 = formChange.image0.value;
+        var valImage11 = formChange.image1.value;
+        var valImage21 = formChange.image2.value;
+        
+        var valFile = formChange.images.value;
+
+        var dem = 0;
+        if (valImage01 !== "" || valImage11 !== "" || valImage21 !== "" || valFile !== "") {
+            dem = dem + 1;
+        }
+        console.log("dem ", dem);
+
+        if(valType === undefined) {
+            valType = typeGift
+        }
+
+        var format = [
+                '`',
+                '!',
+                '@',
+                '#',
+                '$',
+                '%',
+                '^',
+                '&',
+                '*',
+                '(',
+                ')',
+                '-',
+                '_',
+                '+',
+                '=',
+                ':',
+                ';',
+              //  '"',
+                "'",
+                '<',
+                ',',
+                '>',
+                '.',
+                '?',
+                '/',
+                '|',
+                '\\',
+            ];
+
+        var demKiTuDacBiet = 0;
+        var checkKhoangTrang = 0;
+        var checkKhoangTrangMoTa = 0;
+        
+        var arrName = $('#name').val().split(" ");
+        var arrDes= $('#description').val().split(" ");
+
+        for (var i = 0; i < arrName.length; i++) {
+            if (arrName[i] !== "") {
+                checkKhoangTrang = checkKhoangTrang + 1;
+            };
+        }
+
+        for (var i = 0; i < arrDes.length; i++) {
+            if (arrDes[i] !== "") {
+                checkKhoangTrangMoTa = checkKhoangTrangMoTa + 1;
+            };
+        }
+
+        for (var i = 0; i < format.length; i++) {
+            if ($('#name').val().includes(format[i])) {
+                demKiTuDacBiet = demKiTuDacBiet + 1;
+            }
+        }
+        if (valName == valName1 && valDescription === valDescription1 && valQuanlity === valQuanlity1 && valImage0 === valImage01 && valImage1 === valImage11 && valImage2 === valImage21 && valType === typeGift) {
+            $("#noti-no-change").html("Bạn chưa thay đổi thông tin nào !")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 30) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+        }
+
+        else if ( dem === 0) {
+            $("#noti-no-change").html("Vui lòng chọn ít nhất 1 hình ảnh")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 30) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+        }
+
+        else if ($('#name').val() === '') {
+            $("#noti-no-change").html("Vui lòng điền tên quà tặng")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 30) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+        }
+
+        else if ( checkKhoangTrang === 0 ) {
+            $("#noti-no-change").html("Vui lòng điền tên quà tặng")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 30) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+        }
+
+        else if ( demKiTuDacBiet > 0) {
+            $("#noti-no-change").html("Tên quà tặng không được chứa kí tự đặc biệt")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 30) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+        }
+
+        else if ($('#description').val() === '') {
+            $("#noti-no-change").html("Vui lòng điền mô tả")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 30) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+        }
+
+        else if ( checkKhoangTrangMoTa === 0 ) {
+            $("#noti-no-change").html("Vui lòng điền mô tả")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 30) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+        }
+
+        else {
+            $("#noti-no-change").html("Cập nhật thành công")
+                var i = 0;
+                var setTime1 = function () {
+                    $("#noti-no-change").hide();
+                }
+
+                var setTime = setInterval(() => {
+                    i++;
+                    $("#noti-no-change").show();
+                    if (i === 50) {
+                        clearInterval(setTime)
+                        setTime1();
+                    }
+                }, 100)
+            $('#formEditGift').submit()
+        }
+    })
+
+    // Design input Range
+    const
+    range = document.getElementById('range'),
+    rangeV = document.getElementById('rangeV'),
+    setValue = ()=>{
+        const
+        newValue = Number( (range.value - range.min) * 100 / (range.max - range.min) ),
+        newPosition = 10 - (newValue * 0.2);
+        rangeV.innerHTML = `<span>${range.value}%</span>`;
+        rangeV.style.left = `calc(${newValue}% + (${newPosition}px))`;
+    };
+    document.addEventListener("DOMContentLoaded", setValue);
+    range.addEventListener('input', setValue);
+
+ </script>

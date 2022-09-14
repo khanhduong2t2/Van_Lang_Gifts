@@ -1,0 +1,269 @@
+<div id="user-detail">
+  <div class="alert alert-danger" id="noti-no-change" style="display: none">
+   Bạn chưa thay đổi thông tin nào !
+  </div>
+  <div id="login-fail" style="display: none" class="alert alert-danger"></div>
+  <div class="wrap-user-detail">
+    <div class="detail-left">
+    <h2>THÔNG TIN CÁ NHÂN</h2>
+    {{#if avatar}}
+    <img src="{{avatar}}" alt="user images">
+    {{else}}
+    <img src="/public/img/user-icon.jpg" alt="user images" />
+    {{/if}}
+    {{!-- <a class="link-change-password" href="/auth/change-password?email={{email}}"> Thay đổi mật khẩu </a> --}}
+    <a class="link-change-password" onClick="gotoChangePass()" style="color: rgb(0, 157, 255); cursor: pointer"> Thay đổi mật khẩu </a>
+    </div>
+
+    {{!-- <form id="form-update" style="display: block" class="form-user-detail" method="POST" action="/users/update/{{username}}?_method=PUT"> --}}
+    <form id="form-update" style="display: block" class="form-user-detail" >
+      <div class="item-form">
+        <i class="fa fa-envelope-o" aria-hidden="true"></i>
+        <label for="email">Email</label>
+        <input value="{{email}}" type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp"
+          placeholder="Enter email" disabled>
+      </div>
+
+      <div class="item-form">
+        <i class="fa fa-user-o" aria-hidden="true"></i>
+        <label for="username">Tên đăng nhập</label>
+        <input value="{{username}}" type="username" class="form-control" id="username" name="username"
+          aria-describedby="emailHelp" placeholder="Nhập tên đăng nhập" disabled>
+      </div>
+
+      <div class="item-form">
+        <i class="fa fa-id-card-o" aria-hidden="true"></i>
+        <label for="name">Tên người dùng</label>
+        <input value="{{name}}" type="name" class="form-control" id="name" name="name" aria-describedby="emailHelp"
+          placeholder="Nhập tên người dùng">
+      </div>
+
+      <div class="item-form">
+        <i class="fa fa-phone" aria-hidden="true"></i>
+        <label for="phone">Di động</label>
+        <input value="{{phone}}" type="phone" class="form-control" id="phone" name="phone" aria-describedby="emailHelp"
+          placeholder="Nhập số di động">
+      </div>
+
+      <div class="item-form">
+        <i class="fa fa-picture-o" aria-hidden="true"></i>
+        <label for="avatar">Ảnh đại diện</label>
+        <input value="{{avatar}}" type="avatar" class="form-control" id="avatar" name="avatar"
+          aria-describedby="emailHelp" placeholder="Nhập link ảnh đại diện">
+      </div>
+
+      <div class="item-form">
+        <i class="fa fa-facebook" aria-hidden="true"></i>
+        <label for="facebook">Facebook</label>
+        <input value="{{facebook}}" type="facebook" class="form-control" id="facebook" name="facebook"
+          aria-describedby="emailHelp" placeholder="Nhập link facebook">
+      </div>
+
+      <div class="item-form">
+        <i class="fa fa-instagram" aria-hidden="true"></i>
+        <label for="instagram">Instagram</label>
+        <input value="{{instagram}}" type="instagram" class="form-control" id="instagram" name="instagram"
+          aria-describedby="emailHelp" placeholder="Nhập link instagram">
+      </div>
+
+      <button id="buttonUpdateInfo" class="btn btn-primary btn-update-info" >Update</button>
+    </form>
+    
+    <div style="display: none" id="wrap-change-password" class="form-user-detail" >
+      <div id="notification-verify-detail">
+            <p id="user-email" style="display: none">{{email}}</p>
+            {{!-- <form action="/auth/set-password?email={{email}}" method="POST"> --}}
+            <p style="color: rgb(0, 157, 255); cursor: pointer" onclick="gotoUpdateUser()"> <i class="fa fa-angle-left" aria-hidden="true"></i> Cập nhật thông tin </p>
+                <h2 class="text-get-password" style="font-size: 25px; margin-left: 20px;">Thay đổi mật khẩu</h2>
+                <label for="oldPassword" style="margin-left: 58px;">Mật khẩu cũ:</label>
+                <input type="password" id="oldPassword" name="oldPassword" style="width: 275px; padding-left: 8px; margin-bottom: 20px"> </br>
+                <label for="password" style="margin-left: 58px;">Mật khẩu mới:</label>
+                <input type="password" id="password" name="password" style="width: 275px; padding-left: 8px;"> </br>
+                <label for="confirmPassword" style="margin-left: 58px;">Xác thực mật khẩu:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" style="width: 275px; padding-left: 8px; margin-top: 15px;"> </br>
+                <input type="submit" id="btnChangePassword"  value="Gửi" onclick="gotoGetPassword()" style="margin-right: 173px; ">
+            {{!-- </form> --}}
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script>
+  var formChange = document.querySelector(".form-user-detail");
+  var buttonUpdateInfo = $('#buttonUpdateInfo')
+
+  var valName = formChange.name.value;
+  var valPhone = formChange.phone.value;
+  var valAvatar = formChange.avatar.value;
+  var valFacebook = formChange.facebook.value;
+  var valInstagram = formChange.instagram.value;
+
+  buttonUpdateInfo.click(function(e) {
+    e.preventDefault();
+    var valName1 = formChange.name.value;
+    var valPhone1 = formChange.phone.value;
+    var valAvatar1 = formChange.avatar.value;
+    var valFacebook1 = formChange.facebook.value;
+    var valInstagram1 = formChange.instagram.value;
+    if (valName !== valName1 || valPhone !== valPhone1 || valAvatar !== valAvatar1 || valFacebook !== valFacebook1 || valInstagram !== valInstagram1) {
+      gotoUpdate()
+    } else {
+      var i = 0;
+      var setTime1 = function () {
+          $("#noti-no-change").hide();
+      }
+
+      var setTime = setInterval(() => {
+          i++;
+          $("#noti-no-change").show();
+          if (i === 30) {
+              clearInterval(setTime)
+              setTime1();
+          }
+      }, 100)
+    }
+  })
+
+  function gotoGetPassword() {
+        var userEmail = document.getElementById('user-email').innerHTML;
+         $.ajax({
+            url: '/auth/change-password?email=' + userEmail,
+            type: 'POST',
+            data: {
+                oldPassword: $('#oldPassword').val(),
+                password: $('#password').val(),
+                confirmPassword: $('#confirmPassword').val(),
+            }
+        })
+        .then(data => {
+            if (data.message === "Đổi mật khẩu thành công") {
+                $('#login-fail').html('');
+                var itemLi = $(`
+                    <strong>${data.message}</strong>
+                `)
+                $('#login-fail').append(itemLi);
+                if (data.message) {
+                    var i = 0;
+                    var setTime1 = function () {
+                        $("#login-fail").hide();
+                    }
+
+                    var setTime = setInterval(() => {
+                        i++;
+                        $("#login-fail").show();
+                        if (i === 30) {
+                            clearInterval(setTime)
+                            setTime1();
+                        }
+                    }, 100)
+
+                    $('#oldPassword').val("")
+                    $('#password').val("")
+                    $('#confirmPassword').val("")
+                }
+            } else {
+                $('#login-fail').html('');
+                var itemLi = $(`
+                    <strong>${data.message}</strong>
+                `)
+                $('#login-fail').append(itemLi);
+                if (data.message) {
+                    var i = 0;
+                    var setTime1 = function () {
+                        $("#login-fail").hide();
+                    }
+
+                    var setTime = setInterval(() => {
+                        i++;
+                        $("#login-fail").show();
+                        if (i === 30) {
+                            clearInterval(setTime)
+                            setTime1();
+                        }
+                    }, 100)
+                }
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+    function gotoChangePass() {
+      $('#form-update').hide(1000);
+      $('#wrap-change-password').show(1000);
+    }
+
+    function gotoUpdateUser() {
+      $('#form-update').show(1000);
+      $('#wrap-change-password').hide(1000);
+    }
+
+    function gotoUpdate() {
+      var username = $('#username').val();
+      $.ajax({
+            url: '/users/update?username=' + username,
+            type: 'POST',
+            data: {
+                name: $('#name').val(),
+                phone: $('#phone').val(),
+                avatar: $('#avatar').val(),
+                facebook: $('#facebook').val(),
+                instagram: $('#instagram').val(),
+            }
+        })
+      .then(data => {
+            if (data.message === "Cập nhật thành công") {
+                $('#login-fail').html('');
+                var itemLi = $(`
+                    <strong>${data.message}</strong>
+                `)
+                $('#login-fail').append(itemLi);
+                if (data.message) {
+                    var i = 0;
+                    var setTime1 = function () {
+                        $("#login-fail").hide();
+                    }
+
+                    var setTime = setInterval(() => {
+                        i++;
+                        $("#login-fail").show();
+                        if (i === 30) {
+                            clearInterval(setTime)
+                            setTime1();
+                        }
+                    }, 100)
+                }
+                window.location.href = "/users/detail"
+            } else {
+                $('#login-fail').html('');
+                var itemLi = $(`
+                    <strong>${data.message}</strong>
+                `)
+                $('#login-fail').append(itemLi);
+                if (data.message) {
+                    var i = 0;
+                    var setTime1 = function () {
+                        $("#login-fail").hide();
+                    }
+
+                    var setTime = setInterval(() => {
+                        i++;
+                        $("#login-fail").show();
+                        if (i === 30) {
+                            clearInterval(setTime)
+                            setTime1();
+                        }
+                    }, 100)
+                }
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+
+
+</script>

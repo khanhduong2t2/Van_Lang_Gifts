@@ -1,0 +1,55 @@
+<div id="register">
+    <div id="login-fail" style="display: none" class="alert alert-danger"></div>
+    <h1 class="welcome-register"><span class="vanlang-register" style="color: white">VAN LANG GIFTS</span></h1>
+    <div class="get-password-wrap">
+        <div id="notification-verify">
+            <h2 class="text-get-password">Lấy lại mật khẩu</h2>
+            <p>Điền email của bạn ! Chúng tôi sẽ gửi một liên kết giúp bạn lấy lại mật khẩu</p>
+            {{!-- <form action="/auth/send-password" method="POST"> --}}
+                <input type="text" id="send-email" name="email">
+                <input id="btn-send-email" type="submit" value="Gửi" onclick="gotoSendEmail()">
+            {{!-- </form> --}}
+        </div>
+    </div>
+</div>
+
+<script>
+    function gotoSendEmail() {
+        $.ajax({
+            url: '/auth/send-password',
+            type: 'POST',
+            data: {
+                email: $('#send-email').val(),
+            }
+        })
+            .then(data => {
+                if (data.message === "") {
+                    window.location.href = "/auth/notification2"
+                } else {
+                    $('#login-fail').html('');
+                    var itemLi = $(`
+                        <strong>${data.message}</strong>
+                    `)
+                    $('#login-fail').append(itemLi);
+                    if (data.message) {
+                        var i = 0;
+                        var setTime1 = function () {
+                            $("#login-fail").hide();
+                        }
+
+                        var setTime = setInterval(() => {
+                            i++;
+                            $("#login-fail").show();
+                            if (i === 30) {
+                                clearInterval(setTime)
+                                setTime1();
+                            }
+                        }, 100)
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+</script>

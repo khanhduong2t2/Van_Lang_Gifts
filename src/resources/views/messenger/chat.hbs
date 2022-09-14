@@ -1,0 +1,247 @@
+<div id="container-chat">
+    <p id="no-friend" style="text-align: center; font-size: 20px; font-weight: 600">
+        Bạn chưa có người bạn nào.
+        <br>
+        Hãy chọn một món quà và liên hệ với ai đó.
+        <br>
+        <a href="/gifts/show-all" style="font-weight: 600; "> >>Danh sách quà tặng<< </a>
+    </p>
+    <div id="wrapper-chat">
+        <div id="wrap-list-friend">
+            <h3 class="text-messenger">Nhắn tin</h3>
+            <ul id="list-friend">
+            </ul>
+        </div>
+        <div id="box-chat">
+            <div id="show-messenger">
+                <div class="messenger">
+                    <div class="chatMenu">
+                        <div class="chatMenuWrapper">
+                            <div class="conversation" id="conversation">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chatBox">
+                        <div class="chatBoxWrapper">
+                            <div class="chatBoxTop" id="chatBoxTop">
+                            </div>
+                            <div id="thongBao">
+                            </div>
+                            <div class="chatBoxBottom">
+                                {{!-- <textarea class="chatMessageInput" placeholder="Write something ..." name="text"
+                                    id="text"></textarea> --}}
+                                <input type="text" class="chatMessageInput" placeholder="Write something ..."
+                                    name="text" id="text"></input>
+                                <button id="btnSubmitChat" class="chatSubmitButton">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+    var idRoom;
+    var myIdd;
+    var avatarCurrentt;
+    var avatarr;
+    var dataa;
+    $('#wrapper-chat').hide();
+    $('#no-friend').hide()
+    // var socket = io("http://localhost:1104");
+    var socket = io("https://vanlanggifts.herokuapp.com");
+
+    var soLuongFriend = 0;
+    $(document).ready(function () {
+        $.ajax({
+            url: '/messenger/chat-room',
+            type: 'GET',
+        })
+            .then(data => {
+                for (var i = data.length - 1; i >= 0; i--) {
+                    if (data[i].avatar === "" || data[i].avatar === undefined) {
+                        $("#list-friend").append(`<li class="item-friend" data-id="` + data[i].username + `" onclick="gotoCheck()">
+                            <img data-id="`+ data[i].username + `" src="http://windows79.com/wp-content/uploads/2021/02/Thay-the-hinh-dai-dien-tai-khoan-nguoi-dung-mac.png" alt=""/>
+                            <span data-id="`+ data[i].username + `">` + data[i].username + `</span>
+                        </li>`)
+                    } else {
+                        $("#list-friend").append(`<li class="item-friend" data-id="` + data[i].username + `" onclick="gotoCheck()">
+                            <img data-id="`+ data[i].username + `" src="` + data[i].avatar + `" alt=""/>
+                            <span data-id="`+ data[i].username + `">` + data[i].username + `</span>
+                        </li>`)
+                    }
+                    if (i === data.length - 1) {
+                        getIdRoom(data[i].username);
+                    }
+                }
+
+                var listFriend = $('#list-friend')
+                if (listFriend.children().length > 0) {
+                    soLuongFriend = soLuongFriend + 1;
+                }
+                if (soLuongFriend === 0) {
+                    $('#no-friend').show(1000);
+                }
+                if (soLuongFriend > 0) {
+                    $('#wrapper-chat').show(1000);
+                }
+
+            })
+    })
+
+    function getIdRoom(nameAuthor) {
+        $('#chatBoxTop').animate({ scrollTop: 2000 }, 800)
+        $.ajax({
+            url: '/messenger/chat-room/' + nameAuthor,
+            type: 'GET',
+        })
+            .then(data => {
+                dataa = data;
+                idRoom = data.idRoom;
+                myIdd = data.myId;
+
+                const phone = (data.infoFriend.phone === '' || data.infoFriend.phone === undefined) ? "Chưa cập nhật" : data.infoFriend.phone;
+                console.log("data.infoFriend.phone", data.infoFriend.phone)
+                console.log(phone);
+                const avatar = (data.infoFriend.avatar === '' || data.infoFriend.avatar === undefined) ? "http://windows79.com/wp-content/uploads/2021/02/Thay-the-hinh-dai-dien-tai-khoan-nguoi-dung-mac.png" : data.infoFriend.avatar;
+                const facebook = (data.infoFriend.facebook === '' || data.infoFriend.facebook === "") ? "#" : data.infoFriend.facebook;
+                const instagram = (data.infoFriend.instagram === '' || data.infoFriend.instagram === "") ? "#" : data.infoFriend.instagram;
+                avatarr = avatar;
+
+                $('#conversation').html('')
+                $("#conversation").append(`
+                <img id="conversationImg" src="`+ avatar + `" alt="" />
+                <span id="conversationName">`+ data.infoFriend.username + `</span>
+                <br />
+                <span id="conversationEmail">Email: ` + data.infoFriend.email + ` </span>
+                <br />
+                Phone: <span id="conversationPhone">` + phone + `</span>
+                <br />
+                <span style="display: none"><a id="conversationInstagram" href="`+ instagram + `"><i class="fa fa-instagram" aria-hidden="true"></i></a></span>
+                <span style="display: none"><a id="conversationFacebook" href="` + facebook + `"><i class="fa fa-facebook-square" aria-hidden="true"></i></a></span>
+            `)
+
+                $("#chatBoxTop").html("")
+                for (var i = 0; i < data.messages.length; i++) {
+                    if (data.messages[i].sender === data.myId) {
+                        $("#chatBoxTop").append(`
+                    <div class="own">
+                        <div class="messageTop" id="messageText">
+                            <p class="messageText" >` + data.messages[i].text + `</p>
+                            <img class="messageImg" id="imageAuthor" src="`+ data.avatarCurrent + `" alt="" />
+                        </div>
+                    </div>
+                    `)
+                    } else {
+                        $("#chatBoxTop").append(`
+                    <div>
+                        <div class="messageTop" id="messageText">
+                            <img class="messageImg" id="imageAuthor" src="`+ avatar + `" alt="" />
+                            <p class="messageText" >` + data.messages[i].text + `</p>
+                        </div>
+                    </div>
+                    `);
+                    }
+                }
+
+                // Socket cu
+                const myId = data.myId;
+                const idFriend = data.infoFriend._id;
+                avatarCurrentt = data.avatarCurrent;
+                //1
+                socket.emit("tao-phong", data.idRoom);
+
+            })
+    }
+
+    socket.on("server-gui-lai-tin", function (data) {
+        if (data.id === myIdd) {
+            $("#chatBoxTop").append(`
+               <div class="own">
+                   <div class="messageTop" id="messageText">
+                       <p class="messageText" >` + data.nd + `</p>
+                       <img class="messageImg" id="imageAuthor" src="`+ avatarCurrentt + `" alt="" />
+                   </div>
+                </div>
+               `);
+        } else {
+            $("#chatBoxTop").append(`
+              <div>
+                  <div class="messageTop" id="messageText">
+                      <img class="messageImg" id="imageAuthor" src="`+ avatarr + `" alt="" />
+                     <p class="messageText" >` + data.nd + `</p>
+                  </div>
+              </div>
+              `);
+        }
+    });
+
+    $("#text").focusin(function () {
+        socket.emit("toi-dang-go-chu", { nameCurrent: dataa.nameCurrent, myId: myIdd, idRoom: idRoom });
+    })
+
+    $("#text").focusout(function () {
+        socket.emit("toi-stop-go-chu", myIdd)
+    })
+
+    socket.on('ai-do-dang-go-chu', function (data) {
+        if (data.idRoom === idRoom) {
+            var itemHtml = $(`<div id="${data.myId}"><p> ${data.nd} </p> <img src="/public/img/chat.gif"  alt="" /> </div>`)
+            $('#thongBao').html(itemHtml)
+        }
+    })
+    socket.on('ai-do-stop-go-chu', function (data) {
+        var idItem = document.getElementById(data);
+        idItem.remove();
+    })
+
+    // vi tri moi
+    $("#btnSubmitChat").click(function () {
+        var checkRong = /^\s*$/.test($('.chatMessageInput').val());
+        $('#chatBoxTop').animate({ scrollTop: 2000 }, 500)
+
+        // Thêm tin nhắn vào DB
+        if (!checkRong) {
+            $.ajax({
+                url: '/messages',
+                type: 'POST',
+                data: {
+                    text: $("#text").val(),
+                    conversationId: idRoom,
+                    sender: myIdd,
+                }
+            })
+            socket.emit('user-gui-tin',
+                {
+                    nd: $('#text').val(),
+                    id: myIdd,
+                }
+            )
+        }
+        $('.chatMessageInput').val("")
+
+    });
+
+    function gotoCheck() {
+        window.onclick = e => {
+            var userName = e.target.getAttribute('data-id')
+            if (userName !== null) {
+                getIdRoom(userName);
+            }
+        }
+    }
+
+    $(document).keypress(function (event) {
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') {
+            $("#btnSubmitChat").click();
+        }
+    });
+
+</script>

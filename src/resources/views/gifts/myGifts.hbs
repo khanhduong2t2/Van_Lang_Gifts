@@ -1,0 +1,401 @@
+<div id="wrap-container-my-gifts">
+    <div class="item-search">
+        <input type="text" class="input-search">
+        <i class="fa fa-search" aria-hidden="true" onclick="loadPage(1)" id="buttonEnter"></i>
+    </div>
+    <div id="container-my-gifts"></div>
+    <div class="pagi-btn">
+          <ul class="pagination">
+            <li class="page-item" id="pre"><a class="page-link" href="#" onclick="prePage()"><i
+                  class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>
+            <li class="item-pagination">
+              {{!--
+            <li class="page-item"><a class="page-link" href="#" onclick="loadPage(1)">1</a></li>
+            <li class="page-item"><a class="page-link" href="#" onclick="loadPage(3)">3</a></li>
+            --}}
+            </li>
+            <li class="page-item" id="next"><a class="page-link" href="#" onclick="nextPage()"><i
+                  class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>
+          </ul>
+        </div>
+</div>
+
+{{!-- Confirm delete code --}}
+    <div id="delete-gift-modal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Xóa quà tặng</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Bạn chắc chắn muốn xóa quà tặng này ?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+            <button id="btn-delete-gift" type="button" class="btn btn-danger">Xóa bỏ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{{!-- Confirm delete code --}}
+  <div id="update-sent-gifts" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-title">Xác nhận đã tặng</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="text-content">Món quà này sẽ không còn được hiện trên danh sách quà tặng !
+             Bạn chắc chắn đã tặng món quà này ?
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-huy" data-dismiss="modal" >Hủy</button>
+          <button id="btn-update-sent-gifts" type="button" class="btn btn-danger">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<form name="delete-gift-form" method="POST"></form>
+<form name="update-sent-gifts" method="POST"></form>
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script>
+
+
+  var currentPage = 1;
+
+  function loadPage(page) {
+    currentPage = page
+    var valueSearch = $('.input-search').val();
+    $.ajax({
+      url: '/gifts/get-my-gifts?page=' + page + '&name=' + valueSearch,
+    })
+      .then(rs => {
+        $('#container-my-gifts').html('');
+        $('.item-pagination').html('');
+        for (let i = 0; i < rs.tongSoPage; i++) {
+          var itemLi = $(`
+                  <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                `)
+          $('.item-pagination').append(itemLi);
+        }
+
+        for (let i = 0; i < rs.gifts.length; i++) {
+          const element = rs.gifts[i];
+          var avatarGift = element.image[0];
+
+          if (element.fileImages[0] !== undefined) {
+              var avatarSupport =  `/gifts/images/${element.fileImages[0]}`;
+          }
+
+          if (avatarGift === "") {
+              avatarGift = avatarSupport
+          }
+
+          const myTime  = element.createdAt.split('T')[0]
+          var item = $(`
+                      <div class="item-my-gifts">
+                        <img src="${avatarGift}" class="img-item-my-gifts" alt="itemImage"/>
+                        <div class="info-gifts-item">
+                            <strong> Tình trạng: </strong> <br><p class="name-status">${element.status}</p><i onclick="showMess()" id="${element._id}" class="fa fa-envelope email" aria-hidden="true"></i>
+                            <p class="name-gift"> <strong> Tên quà tặng: </strong> <br> ${element.name}</p>
+                            <p id="${element._id}comment" class="text-comment" style="display: none">${element.comment}</p>
+                            <p class="text-description"> <strong> Mô tả: </strong> <br> ${element.description}</p>
+                            <p class="time-create"> <strong> Ngày tạo: </strong> ${myTime}</p>
+                        </div>
+                        <div id="edit-delete" class="edit-delete">
+                            <div id="wrap-sent">
+                              <label class="container-sent">
+                                <input class="sent" ${element.sent ? 'checked' : 'unchecked'} data-toggle="modal" data-target="#update-sent-gifts" type="checkbox" name="sent" id="${element._id}sent"" onChange="checkSent(${element._id})">
+                                <span class="checkmark"></span>
+                                Đã tặng
+                              </label>
+                            </div>
+                            <div id="wrap-feature">
+                              <a href="/gifts/${element._id}/edit" class="icon-edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                              <a href="" class="icon-delete" data-toggle="modal" data-target="#delete-gift-modal" data-id="${element._id}" onclick="gotoCheck()">
+                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                              </a>
+                            </div>
+                        </div>
+                      </div>
+                    `)
+
+          $('#container-my-gifts').append(item);
+        }
+
+        setStatus();
+
+        var itemNone = $(`<h3 id="text-none">Xin lỗi. </br> Bạn chưa đăng quà tặng nào.</h3>`)
+        if (rs.gifts.length === 0) {
+          $('#container-my-gifts').append(itemNone);
+        }
+
+        const activeItem = $('.page-link');
+        for (i = 0; i < activeItem.length; i++) {
+          if(parseInt(activeItem[i].innerText) === currentPage) {
+            activeItem[i].classList.add("active");
+          }
+        }
+
+        var textNone = document.getElementById('text-none');
+        var pre = document.getElementById('pre');
+        var next = document.getElementById('next');
+
+        if (textNone) {
+          pre.style.display = "none";
+          next.style.display = "none";
+        }
+        else {
+          pre.style.display = "block";
+          next.style.display = "block";
+        }
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+  loadPage(currentPage)
+
+  function prePage() {
+        currentPage--;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        var valueSearch = $('.input-search').val();
+        $.ajax({
+            url: '/gifts/get-my-gifts?page=' + currentPage + '&name=' + valueSearch,
+        })
+            .then(rs => {
+                $('#container-my-gifts').html('');
+                $('.item-pagination').html('');
+                for (let i = 0; i < rs.tongSoPage; i++) {
+                    var itemLi = $(`
+                                    <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                                `)
+                    $('.item-pagination').append(itemLi);
+                }
+
+                for (let i = 0; i < rs.gifts.length; i++) {
+                  const element = rs.gifts[i];
+                  const myTime  = element.createdAt.split('T')[0]
+                  var item = $(`
+                              <div class="item-my-gifts">
+                                <img src="${avatarGift}" class="img-item-my-gifts" alt="itemImage"/>
+                                <div class="info-gifts-item">
+                                    <strong> Tình trạng: </strong> <br><p class="name-status">${element.status}</p><i onclick="showMess()" id="${element._id}" class="fa fa-envelope email" aria-hidden="true"></i>
+                                    <p class="name-gift"> <strong> Tên quà tặng: </strong> <br> ${element.name}</p>
+                                    <p id="${element._id}comment" class="text-comment" style="display: none">${element.comment}</p>
+                                    <p class="text-description"> <strong> Mô tả: </strong> <br> ${element.description}</p>
+                                    <p class="time-create"> <strong> Ngày tạo: </strong> ${myTime}</p>
+                                </div>
+                                <div id="edit-delete" class="edit-delete">
+                                    <div id="wrap-sent">
+                                      <label class="container-sent">
+                                        <input class="sent" ${element.sent ? 'checked' : 'unchecked'} data-toggle="modal" data-target="#update-sent-gifts" type="checkbox" name="sent" id="${element._id}sent"" onChange="checkSent(${element._id})">
+                                        <span class="checkmark"></span>
+                                        Đã tặng
+                                      </label>
+                                    </div>
+                                    <div id="wrap-feature">
+                                      <a href="/gifts/${element._id}/edit" class="icon-edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                      <a href="" class="icon-delete" data-toggle="modal" data-target="#delete-gift-modal" data-id="${element._id}" onclick="gotoCheck()">
+                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                      </a>
+                                    </div>
+                                </div>
+                              </div>
+                            `)
+
+                  $('#container-my-gifts').append(item);
+                }
+
+                setStatus();
+
+                var itemNone = $(`<h3 class="text-none">Xin lỗi. </br> Bạn chưa đăng quà tặng nào.</h3>`)
+                if (rs.gifts.length === 0) {
+                    $('#container-my-gifts').append(itemNone);
+                }
+
+                const activeItem = $('.page-link');
+                for (i = 0; i < activeItem.length; i++) {
+                  if(parseInt(activeItem[i].innerText) === currentPage) {
+                    activeItem[i].classList.add("active");
+                  }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+
+    function nextPage() {
+        currentPage++;
+        var pageItem = $('.page-item')
+
+        if (currentPage > pageItem.length - 2) {
+            currentPage = pageItem.length - 2
+        }
+
+        var valueSearch = $('.input-search').val();
+        $.ajax({
+            url: '/gifts/get-my-gifts?page=' + currentPage + '&name=' + valueSearch,
+        })
+            .then(rs => {
+                $('#container-my-gifts').html('');
+                $('.item-pagination').html('');
+                for (let i = 0; i < rs.tongSoPage; i++) {
+                    var itemLi = $(`
+                                    <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                                `)
+                    $('.item-pagination').append(itemLi);
+                }
+
+                for (let i = 0; i < rs.gifts.length; i++) {
+                  const element = rs.gifts[i];
+                  const myTime  = element.createdAt.split('T')[0]
+                  var item = $(`
+                              <div class="item-my-gifts">
+                                <img src="${avatarGift}" class="img-item-my-gifts" alt="itemImage"/>
+                                <div class="info-gifts-item">
+                                    <strong> Tình trạng: </strong> <br><p class="name-status">${element.status}</p><i onclick="showMess()" id="${element._id}" class="fa fa-envelope email" aria-hidden="true"></i>
+                                    <p class="name-gift"> <strong> Tên quà tặng: </strong> <br> ${element.name}</p>
+                                    <p id="${element._id}comment" class="text-comment" style="display: none">${element.comment}</p>
+                                    <p class="text-description"> <strong> Mô tả: </strong> <br> ${element.description}</p>
+                                    <p class="time-create"> <strong> Ngày tạo: </strong> ${myTime}</p>
+                                </div>
+                                <div id="edit-delete" class="edit-delete">
+                                    <div id="wrap-sent">
+                                      <label class="container-sent">
+                                        <input class="sent" ${element.sent ? 'checked' : 'unchecked'} data-toggle="modal" data-target="#update-sent-gifts" type="checkbox" name="sent" id="${element._id}sent"" onChange="checkSent(${element._id})">
+                                        <span class="checkmark"></span>
+                                        Đã tặng
+                                      </label>
+                                    </div>
+                                    <div id="wrap-feature">
+                                      <a href="/gifts/${element._id}/edit" class="icon-edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                      <a href="" class="icon-delete" data-toggle="modal" data-target="#delete-gift-modal" data-id="${element._id}" onclick="gotoCheck()">
+                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                      </a>
+                                    </div>
+                                </div>
+                              </div>
+                            `)
+
+                  $('#container-my-gifts').append(item);
+                }
+
+                setStatus();
+
+                var itemNone = $(`<h3 class="text-none">Xin lỗi. </br> Bạn chưa đăng quà tặng nào.</h3>`)
+                if (rs.gifts.length === 0) {
+                    $('#container-my-gifts').append(itemNone);
+                }
+
+                const activeItem = $('.page-link');
+                for (i = 0; i < activeItem.length; i++) {
+                  if(parseInt(activeItem[i].innerText) === currentPage) {
+                    activeItem[i].classList.add("active");
+                  }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+    
+   // function checkChecked() {
+   //  console.log(event.target)
+   // }
+
+    function checkSent(value) {
+        if(document.getElementById(value+"sent").checked === true) {
+          document.getElementsByClassName('text-title')[0].innerText = 'Xác nhận đã tặng'
+          document.getElementsByClassName('text-content')[0].innerText = `Món quà này sẽ không còn được hiện trên danh sách quà tặng !
+             Bạn chắc chắn đã tặng món quà này `
+        } else {
+          document.getElementsByClassName('text-title')[0].innerText = 'Xác nhận chưa tặng'
+          document.getElementsByClassName('text-content')[0].innerText = `Món quà này sẽ được hiện trở lại trên danh sách quà tặng !
+             Bạn chắc chắn món quà này chưa được tặng `
+        }
+
+        var sentForm = document.forms['update-sent-gifts'];
+        var btnUpdateSentGifts = document.getElementById('btn-update-sent-gifts');
+        btnUpdateSentGifts.onclick = function () {
+          sentForm.action = '/gifts/update-sent-gifts?id=' + value + '&sent=' + document.getElementById(value+"sent").checked ;
+          sentForm.submit();
+        }
+
+        document.getElementsByClassName('btn-huy')[0].onclick = function () {
+          if(document.getElementById(value+"sent").checked) {
+            document.getElementById(value+"sent").checked = false
+          } else {
+            document.getElementById(value+"sent").checked = true
+          }
+        }
+    }
+
+    function gotoCheck() {
+      console.log("Hello")
+        var giftId;
+        var deleteForm = document.forms['delete-gift-form'];
+        var btnDeleteGift = document.getElementById('btn-delete-gift');
+
+        $('#delete-gift-modal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            giftId = button.data('id');
+        });
+
+        btnDeleteGift.onclick = function () {
+          deleteForm.action = '/gifts/' + giftId + '/force?_method=DELETE';
+          deleteForm.submit();
+        }
+    }
+
+    function setStatus() {
+      const status = $('.name-status');
+      const email = $('.fa-envelope');
+
+      for (var i = 0; i < status.length; i++) {
+        if (status[i].innerHTML === "Không được duyệt") {
+          status[i].style.backgroundColor = "red";
+          email[i].style.display = "block";
+        }
+        if (status[i].innerHTML === "Đã được duyệt") {
+          status[i].style.backgroundColor = "#00FF33";
+          email[i].style.display = "none";
+        }
+        if (status[i].innerHTML === "Chờ xét duyệt") {
+          status[i].style.backgroundColor = "yellow";
+          email[i].style.display = "none";
+          status[i].style.color = "black";
+        }
+      }
+    }
+
+    function showMess() {
+      window.onclick = e => {
+          const id = e.target.getAttribute('id');
+          const idComment = id + "comment";
+          const comment = document.getElementById(idComment);
+          if (comment.style.display === "none") {
+            comment.style.display = "block";
+          } else {
+            comment.style.display = "none";
+          }
+      }
+    }
+
+</script>

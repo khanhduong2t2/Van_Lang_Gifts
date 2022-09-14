@@ -1,0 +1,97 @@
+<div id="gift-detail">
+    <div class="image">
+        <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                {{#if image0}}
+                <div class="carousel-item ">
+                <img class="d-block w-100" src="{{image0}}" alt="First slide">
+                </div>
+                {{/if}}
+                {{#if image1}}
+                <div class="carousel-item">
+                <img class="d-block w-100" src="{{image1}}" alt="Second slide">
+                </div>
+                {{/if}}
+                {{#if image2}}
+                <div class="carousel-item">
+                <img class="d-block w-100" src="{{image2}}" alt="Third slide">
+                </div>
+                {{/if}}
+                {{#each fileImages}}
+                <div class="carousel-item">
+                    <img class="d-block w-100" src="/gifts/images/{{this}}" alt="Image gift">
+                </div>
+                {{/each}}
+            </div>
+            <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+    <div class="info">
+        <p class="detail-name" style="font-family:'Segoe UI'" ><strong>Tên quà tặng: </strong><span> {{ gift.name }} </span></p>
+        <p class="detail-des" style="font-family:'Segoe UI'" ><strong>Mô tả: </strong>  <span>{{gift.description}}</span></p>
+        <p style="font-family:'Segoe UI'"><strong>Người tặng: </strong> <span>{{gift.author}} </span> </p>
+        <div class="item-form">
+            <label style="font-family:'Segoe UI'" for="description">Tình trạng món quà:</label>
+            <div class="range-wrap">
+                <div class="range-value" id="rangeV"></div>
+                <input id="range" type="range" min="0" max="100" value="{{gift.quality}}" step="1" id="quality" name="quality">
+            </div>
+        </div>
+        <button data-id="{{gift.idAuthor}}" id="btn-contact" style="font-family:'Segoe UI'"> Liên hệ </button>
+    </div>
+</div>
+<form name="delete-user-form" method="GET"></form>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script>
+
+    $(document).ready(function(){
+        var itemImage = document.getElementsByClassName('carousel-item')
+        itemImage[0].classList.add("active");
+
+
+        var userId = document.getElementById('btn-contact').getAttribute('data-id');
+        var deleteForm = document.forms['delete-user-form'];
+        $('#btn-contact').click(function () {
+            deleteForm.action = '/conversations/' + userId + '?_method=GET';
+            deleteForm.submit();
+        });
+
+        const divFirst = $('.carousel-inner').children();
+
+        const divCon = document.getElementsByClassName('carousel-inner');
+
+        var setAuto = 300000;
+        $('#carouselExampleControls').carousel({
+            interval: setAuto,
+        })
+        $('#carouselExampleControls').click(function(setAuto){
+            if(setAuto !== true){
+                setAuto = true;
+            } else {
+                setAuto = 300000;
+            }
+        })
+    })
+
+// Design input Range
+    const
+    range = document.getElementById('range'),
+    rangeV = document.getElementById('rangeV'),
+    setValue = ()=>{
+        const
+        newValue = Number( (range.value - range.min) * 100 / (range.max - range.min) ),
+        newPosition = 10 - (newValue * 0.2);
+        rangeV.innerHTML = `<span>${range.value}%</span>`;
+        rangeV.style.left = `calc(${newValue}% + (${newPosition}px))`;
+    };
+    document.addEventListener("DOMContentLoaded", setValue);
+    range.addEventListener('input', setValue);
+</script>

@@ -1,0 +1,525 @@
+<div class="container-stored-gift">
+  <div class="wrap-stored-gift">
+    <form method="POST" name="container-form" class="" action="/gifts/handle-form-actions">
+      <div>
+        <h3 class="list-gifts">Danh sách quà tặng</h3>
+        <a href="/me/trash/gifts"> <strong>Thùng rác ({{deletedCount}})</strong> </a>
+
+        <div class="item-search">
+          <input type="text" class="input-search">
+          <i id="buttonEnter" class="fa fa-search" aria-hidden="true" onclick="loadPage(1)"></i>
+        </div>
+
+        <div class="mt-4 d-flex align-items-center">
+          <div class="form-check ">
+            <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+            <label class="form-check-label" for="checkbox-all">
+              Chọn tất cả
+            </label>
+          </div>
+
+          <select class="form-control form-control-sm checkbox-select-all-options" name="action" required>
+            <option value="">-- Hành động --</option>
+            <option value="delete">Xóa</option>
+          </select>
+
+          <button class="btn btn-primary btn-sm check-all-submit-btn" disabled>Thực hiện</button>
+        </div>
+
+      </div>
+
+      <table class="table mt-4 table-gifts">
+        <thead>
+          <tr class="tr-title">
+            <th scope="col" class="col-checkbox"></th>
+            <th scope="col" class="col-id">ID</th>
+            <th scope="col" class="col-gift">
+              Tên quà tặng
+              <a onclick="sortName()" id="sortName" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+              </a>
+            </th>
+            <th scope="col" class="col-author">
+              Người tặng
+              <a onclick="sortAuthor()" id="sortAuthor" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+            </th>
+            <th scope="col" class="col-status">
+              Tình trạng
+              <a onclick="sortStatus()" id="sortStatus" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+            </th>
+            <th scope="col" class="col-sent">
+              Đã tặng
+              <a onclick="sortSent()" id="sortSent" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+            </th>
+            <th scope="col" class="col-time-gift" colspan="2">
+              Thời gian tạo
+              <a onclick="sortTime()" id="sortTime" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+            </th>
+            <th scope="col" class="col-edit"></th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody id="wrap-all-list-gifts">
+          
+        </tbody>
+      </table>
+
+      <div class="pagi-btn">
+        <ul class="pagination">
+          <li class="page-item" id="pre"><a class="page-link" href="#" onclick="prePage()"><i
+                class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>
+          <li class="item-pagination">
+            {{!--
+          <li class="page-item"><a class="page-link" href="#" onclick="loadPage(1)">1</a></li>
+          <li class="page-item"><a class="page-link" href="#" onclick="loadPage(3)">3</a></li>
+          --}}
+          </li>
+          <li class="page-item" id="next"><a class="page-link" href="#" onclick="nextPage()"><i
+                class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>
+        </ul>
+      </div>
+
+    </form>
+    {{!-- Confirm delete code --}}
+    <div id="delete-gift-modal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Xóa quà tặng</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Bạn chắc chắn muốn xóa quà tặng này ?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+            <button id="btn-delete-gift" type="button" class="btn btn-danger">Xóa bỏ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form name="delete-gift-form" method="POST"></form>
+  </div>
+
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="/public/js/pagination.js"></script>
+<script>
+
+
+  ///Code Pagination
+  var currentPage = 1;
+
+  var column ;
+  var type = '1' ;
+
+  function sortName() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortName').html('<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>')
+    } else {
+      type = '-1'
+      $('#sortName').html('<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>')
+    }
+    $('#sortAuthor').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortStatus').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortSent').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+
+    column = 'name'
+    loadPage(currentPage)
+  }
+
+  function sortAuthor() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortAuthor').html('<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>')
+    } else {
+      type = '-1'
+      $('#sortAuthor').html('<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>')
+    }
+    $('#sortName').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortStatus').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortSent').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+
+    column = 'author'
+    loadPage(currentPage)
+  }
+
+  function sortTime() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortTime').html('<i class="fa fa-sort-amount-asc" aria-hidden="true"></i>')
+
+    } else {
+      type = '-1'
+      $('#sortTime').html('<i class="fa fa-sort-amount-desc" aria-hidden="true"></i>')
+
+    }
+    $('#sortName').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortStatus').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortAuthor').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortSent').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+
+    column = 'createdAt'
+    loadPage(currentPage)
+  }
+
+  function sortStatus() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortStatus').html('<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>')
+
+    } else {
+      type = '-1'
+      $('#sortStatus').html('<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>')
+
+    }
+    $('#sortName').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortAuthor').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortSent').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'status'
+    loadPage(currentPage)
+  }
+
+  function sortSent() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortSent').html('<i class="fa fa-sort-amount-asc" aria-hidden="true"></i>')
+
+    } else {
+      type = '-1'
+      $('#sortSent').html('<i class="fa fa-sort-amount-desc" aria-hidden="true"></i>')
+
+    }
+    $('#sortName').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortAuthor').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortStatus').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'sent'
+    loadPage(currentPage)
+  }
+
+  function loadPage(page) {
+    currentPage = page
+    var valueSearch = $('.input-search').val();
+    $.ajax({
+      url: '/gifts/get-all-stored?page=' + page + '&name=' + valueSearch + '&column=' + column + '&type=' + type
+    })
+      .then(rs => {
+        $('#wrap-all-list-gifts').html('');
+        $('.item-pagination').html('');
+        for (let i = 0; i < rs.tongSoPage; i++) {
+          var itemLi = $(`
+                      <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                  `)
+          $('.item-pagination').append(itemLi);
+        }
+
+        for (let i = 0; i < rs.data.length; i++) {
+          const element = rs.data[i];
+          const timeCreate = element.createdAt.split('.')[0];
+          var item = $(`
+                          <tr>
+                            <td>
+                              <div class="form-check ">
+                                <input class="form-check-input checkbox-item " type="checkbox" name="giftIds" value="${element._id}">
+                                </label>
+                              </div>
+                            </td>
+                            <th scope="row" class="col-id th-id">${i + 1}</th>
+                            <td class="col-gift">${element.name}</td>
+                            <td class="col-author">${element.author}</td>
+                            <td class="status-gift col-status">${element.status}</td>
+                            <td class="sent-gift col-sent">${element.sent}</td>
+                            <td class="col-time-gift">${timeCreate}</td>
+                            <td class="col-edit-gift">
+                              <a href="/gifts/${element._id}/edit" class="btn btn-link">Sửa</a>
+                              <a href="" class="btn btn-link" data-toggle="modal" data-id="${element._id}"
+                                data-target="#delete-gift-modal" style="color: red;">Xóa</a>
+                            </td>
+                          </tr>
+                  `)
+
+          $('#wrap-all-list-gifts').append(item);
+        }
+
+        const statusGifts = document.getElementsByClassName('status-gift');
+        for(var i = 0; i < statusGifts.length; i++) {
+          if(statusGifts[i].innerHTML == "Không được duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "red"
+          }
+          if(statusGifts[i].innerHTML == "Chờ xét duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "#FFD700"
+          }
+          if(statusGifts[i].innerHTML == "Đã được duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "lime"
+          }
+        }
+
+        const sentGifts = document.getElementsByClassName('sent-gift');
+        for(var i = 0; i < sentGifts.length; i++) {
+          if(sentGifts[i].innerHTML == "false") {
+            sentGifts[i].innerHTML = `<i class="fa fa-times ml" aria-hidden="true"></i>`
+            sentGifts[i].style.color = "red"
+          }
+          if(sentGifts[i].innerHTML == "true") {
+            sentGifts[i].innerHTML = `<i class="fa fa-check ml" aria-hidden="true"></i>`
+            sentGifts[i].style.color = "lime"
+          }
+        }
+
+        const activeItem = $('.page-link');
+        for (i = 0; i < activeItem.length; i++) {
+            if(parseInt(activeItem[i].innerText) === currentPage) {
+                activeItem[i].classList.add("active");
+            }
+        }
+
+        var itemNone = $(`<h3 id="text-none">Hiện chưa có quà tặng nào.</h3>`)
+        if (rs.data.length === 0) {
+          $('#wrap-all-list-gifts').append(itemNone);
+        }
+
+        var textNone = document.getElementById('text-none');
+        var pre = document.getElementById('pre');
+        var next = document.getElementById('next');
+
+        if (textNone) {
+          pre.style.display = "none";
+          next.style.display = "none";
+        }
+        else {
+          pre.style.display = "block";
+          next.style.display = "block";
+        }
+      gotoCheck()
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+  loadPage(currentPage)
+
+  function prePage() {
+    currentPage--;
+    if (currentPage < 1) {
+      currentPage = 1;
+    }
+
+    var valueSearch = $('.input-search').val();
+    $.ajax({
+      url: '/gifts/get-all-stored?page=' + currentPage + '&name=' + valueSearch + '&column=' + column + '&type=' + type
+    })
+      .then(rs => {
+        $('#wrap-all-list-gifts').html('');
+        $('.item-pagination').html('');
+        for (let i = 0; i < rs.tongSoPage; i++) {
+          var itemLi = $(`
+                          <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                      `)
+          $('.item-pagination').append(itemLi);
+        }
+
+        for (let i = 0; i < rs.data.length; i++) {
+          const element = rs.data[i];
+          var item = $(`
+                        <tr>
+                            <td>
+                              <div class="form-check ">
+                                <input class="form-check-input checkbox-item " type="checkbox" name="giftIds" value="${element._id}">
+                                </label>
+                              </div>
+                            </td>
+                            <th scope="row" class="col-id th-id">${i + 1}</th>
+                            <td class="col-gift">${element.name}</td>
+                            <td class="col-author">${element.author}</td>
+                            <td class="status-gift col-status">${element.status}</td>
+                            <td class="sent-gift col-sent">${element.sent}</td>
+                            <td class="col-time-gift">${timeCreate}</td>
+                            <td>
+                              <a href="/gifts/${element._id}/edit" class="btn btn-link">Sửa</a>
+                              <a href="" class="btn btn-link" data-toggle="modal" data-id="${element._id}"
+                                data-target="#delete-gift-modal" style="color: red;">Xóa</a>
+                            </td>
+                          </tr>
+                    `)
+          $('#wrap-all-list-gifts').append(item);
+        }
+
+        const statusGifts = document.getElementsByClassName('status-gift');
+        for(var i = 0; i < statusGifts.length; i++) {
+          if(statusGifts[i].innerHTML == "Không được duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "red"
+          }
+          if(statusGifts[i].innerHTML == "Chờ xét duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "#FFD700"
+          }
+          if(statusGifts[i].innerHTML == "Đã được duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "lime"
+          }
+        }
+
+        const activeItem = $('.page-link');
+        for (i = 0; i < activeItem.length; i++) {
+            if(parseInt(activeItem[i].innerText) === currentPage) {
+                activeItem[i].classList.add("active");
+            }
+        }
+
+        var itemNone = $(`<h3 class="text-none">Hiện chưa có quà tặng nào.</h3>`)
+        if (rs.data.length === 0) {
+          $('#wrap-all-list-gifts').append(itemNone);
+        }
+      gotoCheck()
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+
+  function nextPage() {
+    currentPage++;
+    var pageItem = $('.page-item')
+
+    if (currentPage > pageItem.length - 2) {
+      currentPage = pageItem.length - 2
+    }
+
+    var valueSearch = $('.input-search').val();
+    $.ajax({
+      url: '/gifts/get-all-stored?page=' + currentPage + '&name=' + valueSearch + '&column=' + column + '&type=' + type
+    })
+      .then(rs => {
+        $('#wrap-all-list-gifts').html('');
+        $('.item-pagination').html('');
+        for (let i = 0; i < rs.tongSoPage; i++) {
+          var itemLi = $(`
+                                    <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                                `)
+          $('.item-pagination').append(itemLi);
+        }
+
+        for (let i = 0; i < rs.data.length; i++) {
+          const element = rs.data[i];
+          var item = $(`
+                        <tr>
+                          <td>
+                            <div class="form-check ">
+                              <input class="form-check-input checkbox-item " type="checkbox" name="giftIds" value="${element._id}">
+                              </label>
+                            </div>
+                          </td>
+                          <th scope="row" class="col-id th-id">${i + 1}</th>
+                          <td class="col-gift">${element.name}</td>
+                          <td class="col-author">${element.author}</td>
+                          <td class="status-gift col-status">${element.status}</td>
+                          <td class="sent-gift col-sent">${element.sent}</td>
+                          <td class="col-time-gift">${timeCreate}</td>
+                          <td>
+                            <a href="/gifts/${element._id}/edit" class="btn btn-link">Sửa</a>
+                            <a href="" class="btn btn-link" data-toggle="modal" data-id="${element._id}"
+                              data-target="#delete-gift-modal" style="color: red;">Xóa</a>
+                          </td>
+                        </tr>
+                    `)
+          $('#wrap-all-list-gifts').append(item);
+        }
+
+        const statusGifts = document.getElementsByClassName('status-gift');
+        for(var i = 0; i < statusGifts.length; i++) {
+          if(statusGifts[i].innerHTML == "Không được duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "red"
+          }
+          if(statusGifts[i].innerHTML == "Chờ xét duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "#FFD700"
+          }
+          if(statusGifts[i].innerHTML == "Đã được duyệt") {
+            statusGifts[i].style.fontWeight = "bold"
+            statusGifts[i].style.color = "lime"
+          }
+        }
+
+        const activeItem = $('.page-link');
+        for (i = 0; i < activeItem.length; i++) {
+            if(parseInt(activeItem[i].innerText) === currentPage) {
+                activeItem[i].classList.add("active");
+            }
+        }
+
+        var itemNone = $(`<h3 class="text-none">Hiện chưa có quà tặng nào.</h3>`)
+        if (rs.data.length === 0) {
+          $('#wrap-all-list-gifts').append(itemNone);
+        }
+      gotoCheck()
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+
+
+    function gotoCheck() {
+      var giftId;
+      var deleteForm = document.forms['delete-gift-form'];
+      var containerForm = $('form[name="container-form"]')
+      var btnDeleteGift = document.getElementById('btn-delete-gift');
+      var checkboxAll = $('#checkbox-all');
+      var giftItemCheckbox = $('input[name="giftIds"]')
+      var checkAllSubmitBtn = $('.check-all-submit-btn');
+      // when dialog confirm clicked
+      $('#delete-gift-modal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        giftId = button.data('id');
+      });
+
+      // when delete gift btn clicked
+      btnDeleteGift.onclick = function () {
+        deleteForm.action = '/gifts/' + giftId + '?_method=DELETE';
+        deleteForm.submit();
+      }
+
+      // Checkbox all clicked
+      checkboxAll.change(function () {
+        var isCheckedAll = $(this).prop('checked');
+        giftItemCheckbox.prop('checked', isCheckedAll);
+        renderCheckAllSubmitBtn()
+      });
+
+      // Gift item checkbox changed
+      giftItemCheckbox.change(function () {
+        var isCheckedAll = giftItemCheckbox.length === $('input[name="giftIds"]:checked').length;
+        checkboxAll.prop('checked', isCheckedAll);
+        renderCheckAllSubmitBtn()
+      });
+
+
+      // Re-render check all submit button
+      function renderCheckAllSubmitBtn() {
+        var checkedCount = $('input[name="giftIds"]:checked').length;
+        if (checkedCount > 0) {
+          checkAllSubmitBtn.attr('disabled', false);  //gỡ bỏ disable
+        } else {
+          checkAllSubmitBtn.attr('disabled', true);   // gán disable
+        }
+      }
+    }
+
+
+</script>

@@ -1,0 +1,380 @@
+<div class="container-stored-user">
+  <div class="wrap-stored-user">
+    <div class="mt-4">
+      <div>
+        <h3 class="list-users">Danh sách người dùng</h3>
+      </div>
+      <div class="item-search">
+        <input type="text" class="input-search">
+        <i class="fa fa-search" aria-hidden="true" onclick="loadPage(1)"></i>
+      </div>
+      <table class="table mt-4 table-users">
+        <thead>
+          <tr  class="info-item">
+            <th scope="col" class="col-stt">STT</th>
+            <th scope="col" class="col-username">
+              Username
+              <a onclick="sortUsername()" id="sortUsername" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+            </th>
+            <th scope="col" class="col-email">
+              Email
+              <a onclick="sortEmail()" id="sortEmail" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+            </th>
+            <th scope="col" class="col-admin">
+              Admin
+              <a onclick="sortAdmin()" id="sortAdmin" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+              </th>
+            <th scope="col" class="col-time" colspan="2">
+              Thời gian tạo
+              <a onclick="sortTime()" id="sortTime" style="color: rgb(0, 179, 255)"><i class="fa fa-sort" aria-hidden="true"></i></a>
+              </th>
+          </tr>
+        </thead>
+        <tbody id="wrap-all-users">
+        </tbody>
+      </table>
+      <div class="pagi-btn">
+        <ul class="pagination">
+          <li class="page-item" id="pre"><a class="page-link" href="#" onclick="prePage()"><i
+                class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>
+          <li class="item-pagination">
+            {{!--
+          <li class="page-item"><a class="page-link" href="#" onclick="loadPage(1)">1</a></li>
+          <li class="page-item"><a class="page-link" href="#" onclick="loadPage(3)">3</a></li>
+          --}}
+          </li>
+          <li class="page-item" id="next"><a class="page-link" href="#" onclick="nextPage()"><i
+                class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>
+        </ul>
+      </div>
+    </div>
+
+    {{!-- Confirm delete user --}}
+    <div id="delete-user-modal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Xóa người dùng</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Bạn chắc chắc muốn xóa người dùng này ?</p>
+          </div>
+          <div class="modal-footer">
+            <button id="btn-delete-user" type="button" class="btn btn-danger">Xóa bỏ</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form name="delete-user-form" method="POST"></form>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="/public/js/pagination.js"></script>
+<script>
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var userId;
+    var deleteForm = document.forms['delete-user-form']
+    var btnDeleteUser = document.getElementById('btn-delete-user');
+
+    $('#delete-user-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      userId = button.data('id');
+    });
+
+    btnDeleteUser.onclick = function () {
+      deleteForm.action = '/users/' + userId + '?_method=DELETE';
+      deleteForm.submit();
+    }
+
+  });
+
+  ///----Code LoadPage()----///
+  var currentPage = 1;
+
+  var column ;
+  var type = '1' ;
+
+  function sortAdmin() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortAdmin').html('<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>')
+    } else {
+      type = '-1'
+      $('#sortAdmin').html('<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>')
+
+    }
+    $('#sortUsername').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortEmail').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'admin'
+    loadPage(currentPage)
+  }
+
+  function sortUsername() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortUsername').html('<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>')
+
+    } else {
+      type = '-1'
+      $('#sortUsername').html('<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>')
+
+    }
+    $('#sortAmin').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortEmail').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'username'
+    loadPage(currentPage)
+  }
+
+  function sortEmail() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortEmail').html('<i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>')
+
+    } else {
+      type = '-1'
+      $('#sortEmail').html('<i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>')
+
+    }
+    $('#sortUsername').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortAmin').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortTime').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'email'
+    loadPage(currentPage)
+  }
+
+  function sortTime() {
+    if(type === '-1') {
+      type = '1'
+      $('#sortTime').html('<i class="fa fa-sort-amount-asc" aria-hidden="true"></i>')
+
+    } else {
+      type = '-1'
+      $('#sortTime').html('<i class="fa fa-sort-amount-desc" aria-hidden="true"></i>')
+
+    }
+    $('#sortUsername').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortEmail').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    $('#sortAdmin').html('<i class="fa fa-sort" aria-hidden="true"></i>')
+    column = 'createdAt'
+    loadPage(currentPage)
+  }
+
+  function loadPage(page) {
+    currentPage = page
+    var valueSearch = $('.input-search').val();
+    $.ajax({
+      url: '/users/get-all?page=' + page + '&name=' + valueSearch + '&column=' + column + '&type=' + type
+    })
+      .then(rs => {
+        $('#wrap-all-users').html('');
+        $('.item-pagination').html('');
+        for (let i = 0; i < rs.tongSoPage; i++) {
+          var itemLi = $(`
+                  <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                `)
+          $('.item-pagination').append(itemLi);
+        }
+
+        for (let i = 0; i < rs.data.length; i++) {
+          const element = rs.data[i];
+          var item = $(`
+                      <tr class="info-item">
+                      <th scope="row">${i+1}</th>
+                      <td class="username">${element.username}</td>
+                      <td class="email">${element.email}</td>
+                      <td class="role-user-admin">${element.admin}</td>
+                      <td>${element.createdAt}</td>
+                      <td>
+                        <a href="/users/${element._id}/edit" class="btn btn-link">Sửa</a>
+                        <a href="" class="btn btn-link" data-id="${element.username}" data-toggle="modal"
+                          data-target="#delete-user-modal" style="color: red;">Xóa</a>
+                      </td>
+                    </tr>
+                    `)
+
+          $('#wrap-all-users').append(item);
+        }
+
+        var itemNone = $(`<h3 id="text-none">Xin lỗi bạn. </br> Hiện người dùng này không có.</h3>`)
+        if (rs.data.length === 0) {
+          $('#wrap-all-users').append(itemNone);
+        }
+
+        const activeItem = $('.page-link');
+        for (i = 0; i < activeItem.length; i++) {
+          if(parseInt(activeItem[i].innerText) === currentPage) {
+            activeItem[i].classList.add("active");
+          }
+        }
+
+        const userAdmin = $('.role-user-admin');
+        for (i = 0; i < userAdmin.length; i++) {
+          if(userAdmin[i].innerText === 'true') {
+            userAdmin[i].style.color = '#00E043';
+          } else {
+            userAdmin[i].style.color = 'red';
+          }
+        }
+
+        var textNone = document.getElementById('text-none');
+        var pre = document.getElementById('pre');
+        var next = document.getElementById('next');
+        if (textNone) {
+          pre.style.display = "none";
+          next.style.display = "none";
+        }
+        else {
+          pre.style.display = "block";
+          next.style.display = "block";
+        }
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+  loadPage(currentPage)
+
+  function prePage() {
+        currentPage--;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        var valueSearch = $('.input-search').val();
+        $.ajax({
+            url: '/users/get-all?page=' + currentPage + '&name=' + valueSearch + '&column=' + column + '&type=' + type
+        })
+            .then(rs => {
+                $('#wrap-all-users').html('');
+                $('.item-pagination').html('');
+                for (let i = 0; i < rs.tongSoPage; i++) {
+                    var itemLi = $(`
+                                    <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                                `)
+                    $('.item-pagination').append(itemLi);
+                }
+
+                for (let i = 0; i < rs.data.length; i++) {
+                    const element = rs.data[i];
+                    var item = $(`
+                                   <tr class="info-item">
+                                    <th scope="row">${i+1}</th>
+                                    <td class="username">${element.username}</td>
+                                    <td class="email">${element.email}</td>
+                                    <td class="role-user-admin">${element.admin}</td>
+                                    <td>${element.createdAt}</td>
+                                    <td>
+                                      <a href="/users/${element._id}/edit" class="btn btn-link">Sửa</a>
+                                      <a href="" class="btn btn-link" data-id="${element.username}" data-toggle="modal"
+                                        data-target="#delete-user-modal" style="color: red;">Xóa</a>
+                                    </td>
+                                  </tr>
+                                `)
+                    $('#wrap-all-users').append(item);
+                }
+                var itemNone = $(`<h3 class="text-none">Xin lỗi bạn. </br> Hiện người dùng này không có.</h3>`)
+                if (rs.data.length === 0) {
+                    $('#wrap-all-users').append(itemNone);
+                }
+
+                const activeItem = $('.page-link');
+                for (i = 0; i < activeItem.length; i++) {
+                  if(parseInt(activeItem[i].innerText) === currentPage) {
+                    activeItem[i].classList.add("active");
+                  }
+                }
+
+                const userAdmin = $('.role-user-admin');
+                for (i = 0; i < userAdmin.length; i++) {
+                  if(userAdmin[i].innerText === 'true') {
+                    userAdmin[i].style.color = '#00E043';
+                  } else {
+                    userAdmin[i].style.color = 'red';
+                  }
+                }
+
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+
+    function nextPage() {
+        currentPage++;
+        var pageItem = $('.page-item')
+
+        if (currentPage > pageItem.length - 2) {
+            currentPage = pageItem.length - 2
+        }
+
+        var valueSearch = $('.input-search').val();
+        $.ajax({
+            url: '/users/get-all?page=' + currentPage + '&name=' + valueSearch + '&column=' + column + '&type=' + type
+        })
+            .then(rs => {
+                $('#wrap-all-users').html('');
+                $('.item-pagination').html('');
+                for (let i = 0; i < rs.tongSoPage; i++) {
+                    var itemLi = $(`
+                                    <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                                `)
+                    $('.item-pagination').append(itemLi);
+                }
+
+                for (let i = 0; i < rs.data.length; i++) {
+                    const element = rs.data[i];
+                    var item = $(`
+                                  <tr class="info-item">
+                                    <th scope="row">${i+1}</th>
+                                    <td class="username">${element.username}</td>
+                                    <td class="email">${element.email}</td>
+                                    <td class="role-user-admin">${element.admin}</td>
+                                    <td>${element.createdAt}</td>
+                                    <td>
+                                      <a href="/users/${element._id}/edit" class="btn btn-link">Sửa</a>
+                                      <a href="" class="btn btn-link" data-id="${element.username}" data-toggle="modal"
+                                        data-target="#delete-user-modal" style="color: red;">Xóa</a>
+                                    </td>
+                                  </tr>
+                                `)
+                    $('#wrap-all-users').append(item);
+                }
+                var itemNone = $(`<h3 class="text-none">Xin lỗi bạn. </br> Hiện người dùng này không có.</h3>`)
+                if (rs.data.length === 0) {
+                    $('#wrap-all-users').append(itemNone);
+                }
+
+                const activeItem = $('.page-link');
+                for (i = 0; i < activeItem.length; i++) {
+                  if(parseInt(activeItem[i].innerText) === currentPage) {
+                    activeItem[i].classList.add("active");
+                  }
+                }
+
+                const userAdmin = $('.role-user-admin');
+                for (i = 0; i < userAdmin.length; i++) {
+                  if(userAdmin[i].innerText === 'true') {
+                    userAdmin[i].style.color = '#00E043';
+                  } else {
+                    userAdmin[i].style.color = 'red';
+                  }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+
+
+
+</script>

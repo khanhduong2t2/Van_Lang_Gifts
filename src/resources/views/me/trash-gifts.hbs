@@ -1,0 +1,171 @@
+<div class="container-stored-gift">
+<div class="wrap-stored-gift wrap-trash-gift">
+  <form method="POST" name="container-form" class="" action="/gifts/handle-form-trash-actions">
+  <div>
+    <a class="return-list-gifts" href="/me/stored/gifts"> <i class="fa fa-chevron-left" aria-hidden="true"></i> <strong> Danh sách quà tặng </strong></a>
+    <h3 class="list-delete-gifts">Quà tặng đã xóa</h3>
+
+    {{!-- Select all  --}}
+
+    <div class="mt-4 d-flex align-items-center">
+      <div class="form-check ">
+        <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+        <label class="form-check-label" for="checkbox-all">
+          Chọn tất cả
+        </label>
+      </div>
+
+      <select class="form-control form-control-sm checkbox-select-all-options" name="action" required>
+        <option value="">-- Hành động --</option>
+        <option value="restore">Khôi phục</option>
+        <option value="delete">Xóa</option>
+      </select>
+
+      <button class="btn btn-primary btn-sm check-all-submit-btn" disabled>Thực hiện</button>
+    </div>
+
+    {{!-- end Select All  --}}
+  </div>
+    <table class="table mt-4 table-gifts">
+        <thead>
+            <tr>
+                <th scope="col" class="col-trash-checkbox"></th>
+                <th scope="col" class="col-trash-stt">STT</th>
+                <th scope="col" class="col-name-gift col-trash-gift">Tên quà tặng</th>
+                <th scope="col" class="col-name-author col-trash-author">Người tặng</th>
+                <th scope="col" colspan="2" class="col-trash-time">Thời gian xóa</th>
+                <th scope="col" class="col-trash-edit"></th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each gifts}}
+            <tr>
+                <td>
+                  <div class="form-check ">
+                    <input class="form-check-input checkbox-item" type="checkbox" name="giftIds" value="{{this._id}}">
+                    </label>
+                  </div>
+                </td>
+                <td scope="row" class="col-trash-stt">{{sum @index 1}}</td>
+                <td class="col-trash-gift">{{this.name}}</td>
+                <td class="col-trash-author">{{this.author}}</td>
+                <td class="col-time-delete col-trash-time">{{this.deletedAt}}</td>
+                <td class="features">
+                    <a href="" class="btn btn-link btn-restore" data-id={{this._id}}>Khôi phục</a>
+                    <a href="" class="btn btn-link" data-toggle="modal" data-id="{{this._id}}" data-target="#delete-gift-modal" style="color: red;">Xóa vĩnh viễn</a>
+                </td>
+            </tr>
+            {{else}}
+            <tr class="tr-text">
+              <td colspan="5" class="text-center">
+                <strong>Thùng rác trống !</strong> 
+                {{!-- <a href="/me/stored/gifts/"> Danh sách quà tặng</a> --}}
+              </td>
+            </tr>
+
+            {{/each}}
+        </tbody>
+    </table>
+    </form>
+</div>
+</div>
+{{!-- Confirm delete code --}}
+<div id="delete-gift-modal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Xóa quà tặng</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Hành động này không thể khôi phục.Bạn chắc chắn muốn xóa quà tặng này ?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+        <button id="btn-delete-gift" type="button" class="btn btn-danger">Xóa vĩnh viễn</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{!-- Delete hidden form --}}
+<form name="delete-gift-form" method="POST"></form>
+<form name="restore-gift-form" method="POST"></form>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        var timeDelete = document.getElementsByClassName("col-time-delete");
+        for (var i = 0; i < timeDelete.length; i++) {
+          timeDelete[i].innerHTML = timeDelete[i].innerHTML.split('G')[0];
+        }
+
+        var giftId;
+        var deleteForm = document.forms['delete-gift-form'];
+        var restoreForm = document.forms['restore-gift-form'];
+        var btnDeleteGift = document.getElementById('btn-delete-gift');
+        var btnRestore = $('.btn-restore');
+
+        var containerForm = $('form[name="container-form"]')
+        var checkboxAll = $('#checkbox-all');
+        var giftItemCheckbox = $('input[name="giftIds"]');
+        var checkAllSubmitBtn = $('.check-all-submit-btn');
+
+        // when dialog confirm clicked
+        $('#delete-gift-modal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            giftId = button.data('id');
+        });
+
+        // when delete gift btn clicked
+        btnDeleteGift.onclick = function () {
+            deleteForm.action = '/gifts/' + giftId + '/force?_method=DELETE';
+            deleteForm.submit();
+        }
+
+        // Restore btn clicked
+        btnRestore.click(function (e) {
+          e.preventDefault();
+
+          var giftId = $(this).data('id');
+          restoreForm.action = '/gifts/' + giftId + '/restore?_method=PATCH';
+          restoreForm.submit();
+        })
+
+        // Checkbox all clicked
+        checkboxAll.change(function () {
+          var isCheckedAll = $(this).prop('checked');
+          giftItemCheckbox.prop('checked', isCheckedAll);
+          renderCheckAllSubmitBtn()
+        });
+
+        // Gift item checkbox changed
+        giftItemCheckbox.change(function () {
+          var isCheckedAll = giftItemCheckbox.length === $('input[name="giftIds"]:checked').length;
+          checkboxAll.prop('checked', isCheckedAll);
+          renderCheckAllSubmitBtn()
+        });
+
+        // Check all submit button clicked
+        checkAllSubmitBtn.on('submit', function (e) {
+          var isSubmitable = !$(this).hasClass('disabled');
+          if (!isSubmitable) {
+            e.preventDefault();
+          }
+        })
+
+
+        // Re-render check all submit button
+        function renderCheckAllSubmitBtn() {
+          var checkedCount = $('input[name="giftIds"]:checked').length;
+          if (checkedCount > 0) {
+            checkAllSubmitBtn.attr('disabled', false);  //gỡ bỏ disable
+          } else {
+            checkAllSubmitBtn.attr('disabled', true);   // gán disable
+          }
+        }
+    });
+</script>

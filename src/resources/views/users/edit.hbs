@@ -1,0 +1,35 @@
+<div id="container-edit-user">
+    <div id="wrapper-edit-user">
+        <div class="mt-4">
+            <h3>Cập nhật người dùng
+                {{#if user.admin}}
+                    <h4 style="color: rgb(0, 255, 128)">Vai trò: Admin</h4>
+                {{else}}
+                    <h4 style="color: red">Vai trò: User</h4>
+                {{/if}}
+            </h3>
+            <form class="mt-4" method="POST" action="/users/{{user._id}}?_method=PUT">
+                <div class="form-group">
+                <label for="username">Username</label>
+                    <input type="text" class="form-control" value="{{user.username}}" id="username" name="username">
+                </div>
+                <div class="form-group">
+                <label for="email">Email</label>
+                    <input type="email" class="form-control" value="{{user.email}}" id="email" name="email">
+                </div>
+                <div class="form-group">
+                    <p>Role</p>
+                    {{#if user.admin}}
+                        <input type="radio" id="admin" name="admin"  value="true" checked> Admin</input>
+                        <input type="radio" id="none-admin" name="admin"  value="false"> User</input>
+                    {{else}}
+                        <input type="radio" id="admin" name="admin"  value="true" > Admin</input>
+                        <input type="radio" id="none-admin" name="admin"  value="false" checked> User</input>
+                    {{/if}}
+
+                </div>
+                <button type="submit" class="btn btn-primary">Lưu lại</button>
+            </form>
+        </div>
+    </div>
+</div>

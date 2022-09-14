@@ -1,0 +1,287 @@
+<div id="show-all-gifts">
+    <div class="item-search">
+        <input type="text" class="input-search">
+        <input type="text" class="input-type" style="display: none">
+        <i class="fa fa-search" aria-hidden="true" onclick="loadPage(1)"></i>
+        <a class="item-type" onclick="getAll()">All</a>
+        <a class="item-type" onclick="book()">Sách</a>
+        <a class="item-type" onclick="vatdungcanhan()">Vật dụng cá nhân</a>
+        <a class="item-type" onclick="thoitrang()">Thời trang</a>
+        <a class="item-type" onclick="phukien()">Phụ kiện</a>
+        <a class="item-type" onclick="dodunghoctap()">Đồ dùng học tập</a>
+        <a class="item-type" onclick="thietbidientu()">Thiết bị điện tử</a>
+    </div>
+    <div id="wrap-all-gifts"></div>
+    <ul class="pagination">
+        <li class="page-item" id="pre"><a class="page-link" href="#" onclick="prePage()"><i
+                    class="fa fa-angle-double-left" aria-hidden="true"></i></a></li>
+        <li class="item-pagination">
+            {{!--
+        <li class="page-item"><a class="page-link" href="#" onclick="loadPage(1)">1</a></li>
+        <li class="page-item"><a class="page-link" href="#" onclick="loadPage(3)">3</a></li> --}}
+        </li>
+        <li class="page-item" id="next"><a class="page-link" href="#" onclick="nextPage()"><i
+                    class="fa fa-angle-double-right" aria-hidden="true"></i></a></li>
+    </ul>
+</div>
+
+
+<form name="search-gifts-form" method="POST"></form>
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="/public/js/pagination.js"></script>
+<script>
+
+    function getAll() {
+        var valueSearch = $('.input-type').val('');
+        valueSearch = $('.input-search').val('');
+        loadPage(1)
+    }
+
+    function book() {
+        var valueSearch = $('.input-type').val('Sách');
+        loadPage(1)
+    }
+
+    function vatdungcanhan() {
+        var valueSearch = $('.input-type').val('Vật dụng cá nhân');
+        loadPage(1)
+    }
+
+    function thoitrang() {
+        var valueSearch = $('.input-type').val('Thời trang');
+        loadPage(1)
+    }
+
+    function phukien() {
+        var valueSearch = $('.input-type').val('Phụ kiện');
+        loadPage(1)
+    }
+
+    function dodunghoctap() {
+        var valueSearch = $('.input-type').val('Đồ dùng học tập');
+        loadPage(1)
+    }
+
+    function thietbidientu() {
+        var valueSearch = $('.input-type').val('Thiết bị điện tử');
+        loadPage(1)
+    }
+
+    var currentPage = 1;
+
+    function loadPage(page) {
+        currentPage = page
+        var valueSearch = $('.input-search').val();
+        var valueType = $('.input-type').val();
+        $.ajax({
+            url: '/gifts/get-all?page=' + page + '&name=' + valueSearch + '&typeGift=' + valueType,
+        })
+            .then(rs => {
+                $('#wrap-all-gifts').html('');
+                $('.item-pagination').html('');
+                for (let i = 0; i < rs.tongSoPage; i++) {
+                    var itemLi = $(`
+                        <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                    `)
+                    $('.item-pagination').append(itemLi);
+                }
+
+                for (let i = 0; i < rs.data.length; i++) {
+                    const element = rs.data[i];
+                    var avatarGift = element.image[0];
+                    if (element.fileImages[0] !== undefined) {
+                        var avatarSupport =  `/gifts/images/${element.fileImages[0]}`;
+                    }
+
+
+                    if (avatarGift === "") {
+                        avatarGift = avatarSupport
+                    }
+
+                    var item = $(`
+                        <div class="item-all-gift">
+                            <div class="card card-gift-item ">
+                                <a class="item-size-image" href="/gifts/${element.slug}">
+                                    <img class=" image-size-home" src=${avatarGift} alt="${element.name}">
+                                </a>
+                                <div class="card-body">
+                                    <a href="/gifts/${element.slug}">
+                                        <p class="card-title" style="font-family:'Segoe UI'">Tên quà tặng:  ${element.name}</p>
+                                    </a>
+                                    <p class="card-text" style="font-family:'Segoe UI'">Người tặng: ${element.author}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `)
+
+                    $('#wrap-all-gifts').append(item);
+                }
+
+                var itemNone = $(`<h3 id="text-none">Xin lỗi bạn. </br> Hiện quà tặng này không có.</h3>`)
+                if (rs.data.length === 0) {
+                    $('#wrap-all-gifts').append(itemNone);
+                }
+
+                const activeItem = $('.page-link');
+                for (i = 0; i < activeItem.length; i++) {
+                    if(parseInt(activeItem[i].innerText) === currentPage) {
+                        activeItem[i].classList.add("active");
+                    }
+                }
+
+                var textNone = document.getElementById('text-none');
+                var pre = document.getElementById('pre');
+                var next = document.getElementById('next');
+
+                if (textNone) {
+                    pre.style.display = "none";
+                    next.style.display = "none";
+                }
+                else {
+                    pre.style.display = "block";
+                    next.style.display = "block";
+                }
+
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+    loadPage(currentPage)
+
+    function prePage() {
+        currentPage--;
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        var valueSearch = $('.input-search').val();
+        $.ajax({
+            url: '/gifts/get-all?page=' + currentPage + '&name=' + valueSearch,
+        })
+            .then(rs => {
+                $('#wrap-all-gifts').html('');
+                $('.item-pagination').html('');
+                for (let i = 0; i < rs.tongSoPage; i++) {
+                    var itemLi = $(`
+                                    <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                                `)
+                    $('.item-pagination').append(itemLi);
+                }
+
+                const activeItem = $('.page-link');
+                for (i = 0; i < activeItem.length; i++) {
+                    if(parseInt(activeItem[i].innerText) === currentPage) {
+                        activeItem[i].classList.add("active");
+                    }
+                }
+
+                for (let i = 0; i < rs.data.length; i++) {
+                    const element = rs.data[i];
+                    var avatarGift = element.image[0];
+                    if (element.fileImages[0] !== undefined) {
+                        var avatarSupport =  `/gifts/images/${element.fileImages[0]}`;
+                    }
+
+
+                    if (avatarGift === "") {
+                        avatarGift = avatarSupport
+
+                    }
+
+                    var item = $(`
+                                    <div class="item-all-gift">
+                                        <div class="card card-gift-item ">
+                                            <a class="item-size-image" href="/gifts/${element.slug}">
+                                                <img class=" image-size-home" src=${avatarGift} alt="${element.name}">
+                                            </a>
+                                            <div class="card-body">
+                                                <a href="/gifts/${element.slug}">
+                                                    <p class="card-title" style="font-family:'Segoe UI'">Tên quà tặng:  ${element.name}</p>
+                                                </a>
+                                                <p class="card-text" style="font-family:'Segoe UI'">Người tặng: ${element.author}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `)
+                    $('#wrap-all-gifts').append(item);
+                }
+                var itemNone = $(`<h3 class="text-none">Xin lỗi bạn. </br> Hiện quà tặng này không có.</h3>`)
+                if (rs.data.length === 0) {
+                    $('#wrap-all-gifts').append(itemNone);
+                }
+
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+
+    function nextPage() {
+        currentPage++;
+        var pageItem = $('.page-item')
+
+        if (currentPage > pageItem.length - 2) {
+            currentPage = pageItem.length - 2
+        }
+
+        var valueSearch = $('.input-search').val();
+        $.ajax({
+            url: '/gifts/get-all?page=' + currentPage + '&name=' + valueSearch,
+        })
+            .then(rs => {
+                $('#wrap-all-gifts').html('');
+                $('.item-pagination').html('');
+                for (let i = 0; i < rs.tongSoPage; i++) {
+                    var itemLi = $(`
+                                    <li class="page-item"><a class="page-link" href="#" onclick="loadPage(${i + 1})">${i + 1}</a></li>
+                                `)
+                    $('.item-pagination').append(itemLi);
+                }
+
+                for (let i = 0; i < rs.data.length; i++) {
+                    const element = rs.data[i];
+                    var avatarGift = element.image[0];
+
+                    if (element.fileImages[0] !== undefined) {
+                        var avatarSupport =  `/gifts/images/${element.fileImages[0]}`;
+                    }
+
+                    if (avatarGift === "") {
+                        avatarGift = avatarSupport
+                    }
+                    var item = $(`
+                                    <div class="item-all-gift">
+                                        <div class="card card-gift-item ">
+                                            <a class="item-size-image" href="/gifts/${element.slug}">
+                                                <img class=" image-size-home" src=${avatarGift} alt="${element.name}">
+                                            </a>
+                                            <div class="card-body">
+                                                <a href="/gifts/${element.slug}">
+                                                    <p class="card-title" style="font-family:'Segoe UI'">Tên quà tặng:  ${element.name}</p>
+                                                </a>
+                                                <p class="card-text" style="font-family:'Segoe UI'">Người tặng: ${element.author}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `)
+                    $('#wrap-all-gifts').append(item);
+                }
+
+                const activeItem = $('.page-link');
+                for (i = 0; i < activeItem.length; i++) {
+                    if(parseInt(activeItem[i].innerText) === currentPage) {
+                        activeItem[i].classList.add("active");
+                    }
+                }
+                var itemNone = $(`<h3 class="text-none">Xin lỗi bạn. </br> Hiện quà tặng này không có.</h3>`)
+                if (rs.data.length === 0) {
+                    $('#wrap-all-gifts').append(itemNone);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }
+</script>
