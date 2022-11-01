@@ -142,7 +142,7 @@ io.on('connection', function (socket) {
 
 
 const io2 = require("socket.io-client");        // connect to Server of Socket
-const socket2 = io2(process.env.PATH_OF_SOCKET, {
+const socket2 = io2("http://bnpl.voolo.vn:5100", {
     withCredentials: true,
 });
 
