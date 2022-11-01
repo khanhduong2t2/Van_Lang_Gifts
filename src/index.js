@@ -29,7 +29,7 @@ const db = async () => {
     try {
         await mongoose.connect(
             process.env.MONGODB_URI ||
-                'mongodb+srv://khanhduong2t2:ngay2thang2@vanlanggiftsteam6.leeac.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+            'mongodb+srv://khanhduong2t2:ngay2thang2@vanlanggiftsteam6.leeac.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
             {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
@@ -107,6 +107,8 @@ server.listen(PORT, () => {
     console.log(`App listening at http://localhost:${PORT}`);
 });
 
+
+
 io.on('connection', function (socket) {
     console.log('Co nguoi ket noi' + socket.id);
 
@@ -136,3 +138,19 @@ io.on('connection', function (socket) {
         io.sockets.in(socket.Phong).emit('ai-do-stop-go-chu', data);
     });
 });
+
+
+
+const io2 = require("socket.io-client");        // connect to Server of Socket
+const socket2 = io2(process.env.PATH_OF_SOCKET, {
+    withCredentials: true,
+});
+
+let result;
+socket2.on("serverToClient", (data) => {    // Listen from server Socket , get data
+    result = data;
+});
+
+app.get('/socket', (req, res) => {
+    res.send(result);
+})
