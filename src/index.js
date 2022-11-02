@@ -149,6 +149,7 @@ const socket2 = io2("http://bnpl.voolo.vn:5100", {
 let result;
 socket2.on("serverToClient", (data) => {    // Listen from server Socket , get data
     result = data;
+    console.log(result);
 });
 
 app.get('/socket', (req, res) => {
