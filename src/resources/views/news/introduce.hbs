@@ -14,7 +14,7 @@
 
 <script>
     console.log('Hello World')
-    var socket = io.connect("http://bnpl.voolo.vn:5100");
+    var socket = io.connect("https://api-socket.test.voolo.vn");
     console.log(socket);
     socket.on('serverToClient', data => {
         console.log("data: ", data);
