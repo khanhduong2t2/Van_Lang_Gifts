@@ -141,17 +141,17 @@ io.on('connection', function (socket) {
 
 
 
-const io2 = require("socket.io-client");        // connect to Server of Socket
-const socket2 = io2("http://bnpl.voolo.vn:5100", {
-    withCredentials: true,
-});
+// const io2 = require("socket.io-client");        // connect to Server of Socket
+// const socket2 = io2("https://api-socket.test.voolo.vn", {
+//     withCredentials: true,
+// });
 
-let result;
-socket2.on("serverToClient", (data) => {    // Listen from server Socket , get data
-    result = data;
-    console.log(result);
-});
+// let result;
+// socket2.on("serverToClient", (data) => {    // Listen from server Socket , get data
+//     result = data;
+//     console.log(result);
+// });
 
-app.get('/socket', (req, res) => {
-    res.send(result);
-})
+// app.get('/socket', (req, res) => {
+//     res.send(result);
+// })
