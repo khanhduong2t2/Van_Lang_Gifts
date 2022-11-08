@@ -5,6 +5,7 @@
         <p>Van Lang Gifts ra mắt vào ngày 11/4/2022. Giúp cho tất cả các bạn sinh viên Văn Lang có thể chia sẻ,
             trao đổi các món đồ đã qua sử dụng với nhau, cùng nhau xây dựng một môi trường giao lưu, hỗ trợ thân thương.
         </p>
+        <p>Bạn có muốn cùng tham gia với chúng tôi ? <a href="#" onclick="callSocket()">Tham gia</a></p>
         <img src="/public/img/moqua.png" alt="" />
     </div>
 </div>
@@ -14,10 +15,14 @@
 
 <script>
     console.log('Hello World')
-    var socket = io.connect("https://api-socket.test.voolo.vn");
-    //var socket = io.connect("http://localhost:5100");
+    // var socket = io.connect("https://api-socket.test.voolo.vn");
+    var socket = io.connect("http://localhost:5100");
     console.log(socket);
-    socket.on('serverToClient', data => {
-        console.log("data: ", data);
-    });
+    var number = '0998877661';
+    socket.emit("sendPhone", number)
+    socket.on(number, data => console.log(data));
+
+    function callSocket() {
+        socket.emit('updateCount', number)
+    }
 </script>

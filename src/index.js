@@ -18,6 +18,17 @@ const route = require('./routes');
 const dotenv = require('dotenv');
 const session = require('express-session');
 
+
+var cors = require('cors')
+const corsOptions = {
+    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
+    "origin": "*",
+    "preflightContinue": false,
+    "optionsSuccessStatus": 204
+};
+//middleware
+app.use(cors(corsOptions));
+
 dotenv.config();
 
 app.use(cookieParser('secret'));
@@ -138,8 +149,6 @@ io.on('connection', function (socket) {
         io.sockets.in(socket.Phong).emit('ai-do-stop-go-chu', data);
     });
 });
-
-
 
 // const io2 = require("socket.io-client");        // connect to Server of Socket
 // const socket2 = io2("https://api-socket.test.voolo.vn", {
