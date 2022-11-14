@@ -16,9 +16,9 @@
 
 <script>
     // var socket = io.connect("http://localhost:5100");
+    var socket = io.connect("https://api-socket.test.voolo.vn");
     console.log('Hello World')
     console.log(socket);
-    var socket = io.connect("https://api-socket.test.voolo.vn");
     var phone = '0972579495' // Số điện thoại người dùng;
     socket.emit("sendPhone", phone) // Gửi số đt lên Socket server
     socket.on(phone, data => console.log(data));  // Nhận data
