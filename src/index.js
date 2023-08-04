@@ -40,7 +40,7 @@ const db = async () => {
     try {
         await mongoose.connect(
             process.env.MONGODB_URI ||
-            'mongodb+srv://khanhduong2t2:ngay2thang2@vanlanggiftsteam6.leeac.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+            'mongodb+srv://khanhduong2t2:ngay2thang2@vanlanggiftsteam6.leeac.mongodb.net/',
             {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,

@@ -1,196 +1,210 @@
 <div id="home-container">
-<!-- Banner -->
-<div id="myCarousel" class="carousel slide carousel-fade" data-ride="carousel">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <div class="mask flex-center">
-                <div class="container-banner">
-                    <div class="row align-items-center">
-                        <div class="col-md-6 col-12 order-md-1 order-2">
-                            <h4>Chào Mừng K27 Đến Với {{accessToken}}</h4>
-                            <h4 class="van-lang-gifts" style="color: red"> <strong> VAN LANG GIFTS </strong></h4>
-                            <p>Nơi sinh viên Văn Lang trao nhau những món quà ý nghĩa.<br></p> <br> <a href="/introduce">ĐỌC THÊM</a>
+    <!-- Banner -->
+    <div id="myCarousel" class="carousel slide carousel-fade" data-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="mask flex-center">
+                    <div class="container-banner">
+                        <div class="row align-items-center">
+                            <div class="col-md-6 col-12 order-md-1 order-2">
+                                <h4>Chào Mừng K27 Đến Với {{accessToken}}</h4>
+                                <h4 class="van-lang-gifts" style="color: red"> <strong> VAN LANG GIFTS </strong></h4>
+                                <p>Nơi sinh viên Văn Lang trao nhau những món quà ý nghĩa.<br></p> <br> <a
+                                    href="/introduce">ĐỌC THÊM</a>
+                            </div>
+                            <div class="col-md-6 col-12 order-md-2 order-2"><img src="/public/img/vanlangK27.jpg"
+                                    class="mx-auto img-banner" alt="slide"></div>
                         </div>
-                        <div class="col-md-6 col-12 order-md-2 order-2"><img src="/public/img/vanlangK27.jpg" class="mx-auto img-banner" alt="slide"></div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="carousel-item">
-            <div class="mask flex-center">
-                <div class="container-banner">
-                    <div class="row align-items-center">
-                        <div class="col-md-7 col-12 order-md-1 order-2">
-                            <h4 style="color: red">1.000.000 Quà Tặng</h4>
-                            <p>Là con số quà tặng Văn Lang Gifts hướng đến năm 2023</p> <br>
+            <div class="carousel-item">
+                <div class="mask flex-center">
+                    <div class="container-banner">
+                        <div class="row align-items-center">
+                            <div class="col-md-7 col-12 order-md-1 order-2">
+                                <h4 style="color: red">1.000.000 Quà Tặng</h4>
+                                <p>Là con số quà tặng Văn Lang Gifts hướng đến năm 2023</p> <br>
+                            </div>
+                            <div class="col-md-5 col-12 order-md-2 order-1"><img src="/public/img/vanlangQua.jpg"
+                                    class="mx-auto" alt="slide"></div>
                         </div>
-                        <div class="col-md-5 col-12 order-md-2 order-1"><img src="/public/img/vanlangQua.jpg" class="mx-auto" alt="slide"></div>
                     </div>
                 </div>
             </div>
-        </div>
 
-    </div> <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev"> <span class="carousel-control-prev-icon" aria-hidden="true"></span> <span class="sr-only">Previous</span> </a> <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next"> <span class="carousel-control-next-icon" aria-hidden="true"></span> <span class="sr-only">Next</span> </a>
-</div>
-
-<!-- List Gifts -->
-<div id="list-gifts">
-    <div class="title-text">
-        <p>List Gifts</p>
-        <h1>Take And Give Gifts</h1>
+        </div> <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev"> <span
+                class="carousel-control-prev-icon" aria-hidden="true"></span> <span class="sr-only">Previous</span> </a>
+        <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next"> <span
+                class="carousel-control-next-icon" aria-hidden="true"></span> <span class="sr-only">Next</span> </a>
     </div>
-    <div class="row container-gift">
 
-        {{#each gifts}}
-        <div class="col-lg-4 mt-2 mb-4 item-gift ">
-            <div class="card card-gift-item ">
-                <a class="item-size-image" href="/gifts/{{this.slug}}">
-                {{#with this.image.[0]}}
-                    <img class="image-size-home" src="{{this}}" alt="{{this.name}}" >
-                {{/with}}
-                {{#with this.fileImages.[0]}}
-                    <img class="image-size-home" src="/gifts/images/{{this}}" alt="{{this.name}}">
-                {{/with}}
-                </a>
-                <div class="card-body">
-                    <a href="/gifts/{{this.slug}}">
-                        <p class="card-title" style="font-family:'Segoe UI'">Tên quà tặng:  {{this.name}}</p>
+    <!-- List Gifts -->
+    <div id="list-gifts">
+        <div class="title-text">
+            <p>List Gifts</p>
+            <h1>Take And Give Gifts</h1>
+        </div>
+        <div class="row container-gift">
+
+            {{#each gifts}}
+            <div class="col-lg-4 mt-2 mb-4 item-gift ">
+                <div class="card card-gift-item ">
+                    <a class="item-size-image" href="/gifts/{{this.slug}}">
+                        {{#with this.image.[0]}}
+                        <img class="image-size-home" src="{{this}}" alt="{{this.name}}">
+                        {{/with}}
+                        {{#with this.fileImages.[0]}}
+                        <img class="image-size-home" src="/gifts/images/{{this}}" alt="{{this.name}}">
+                        {{/with}}
                     </a>
-                    <p class="card-text" style="font-family:'Segoe UI'">Người tặng: {{this.author}}</p>
+                    <div class="card-body">
+                        <a href="/gifts/{{this.slug}}">
+                            <p class="card-title" style="font-family:'Segoe UI'">Tên quà tặng: {{this.name}}</p>
+                        </a>
+                        <p class="card-text" style="font-family:'Segoe UI'">Người tặng: {{this.author}}</p>
+                    </div>
                 </div>
             </div>
+            {{/each}}
         </div>
-        {{/each}}
+        <div class="title-text">
+            <button class="btn btn-info btn-all-gifts">
+                <a href="/gifts/show-all">
+                    <h4 style="font-weight: bold;">ALL GIFTS</h4>
+                </a>
+            </button>
+        </div>
     </div>
-    <div class="title-text">
-        <button class="btn btn-info btn-all-gifts">
-            <a href="/gifts/show-all"><h4 style="font-weight: bold;">ALL GIFTS</h4></a>
-        </button>
-    </div>
-</div>
 
 
-<!-- goals -->
-<section id="goal">
-    <div class="title-text-goal">
-        <p>GOALS</p>
-        <h1>Go To The Future</h1>
-    </div>
-    <div class="goal-box">
-        <div class="goals">
-            <h1>1.000.000 Gifts</h1>
-            <div class="goals-desc">
-                <div class="goal-icon">
-                    <i class="fa fa-shield"></i>
+    <!-- goals -->
+    <section id="goal">
+        <div class="title-text-goal">
+            <p>GOALS</p>
+            <h1>Go To The Future</h1>
+        </div>
+        <div class="goal-box">
+            <div class="goals">
+                <h1>1.000.000 Gifts</h1>
+                <div class="goals-desc">
+                    <div class="goal-icon">
+                        <i class="fa fa-shield"></i>
+                    </div>
+                    <div class="goal-text">
+                        <p style="font-family:'Segoe UI'">Hướng đến mục tiêu trao 1.000.000 món quà trong năm 2023.
+                        </p>
+                    </div>
                 </div>
-                <div class="goal-text">
-                    <p style="font-family:'Segoe UI'">Hướng đến mục tiêu trao 1.000.000 món quà trong năm 2023.
+                <h1>5.000 Users</h1>
+                <div class="goals-desc">
+                    <div class="goal-icon">
+                        <i class="fa fa-check-square-o"></i>
+                    </div>
+                    <div class="goal-text">
+                        <p style="font-family:'Segoe UI'">
+                            5.000 bạn sinh viên Văn Lang tham gia Van Lang Gifts.
+                        </p>
+                    </div>
+                </div>
+                <h1>More And More</h1>
+                <div class="goals-desc">
+                    <div class="goal-icon">
+                        <i class="fa fa-inr"></i>
+                    </div>
+                    <div class="goal-text">
+                        <p style="font-family:'Segoe UI'">Nhiều và nhiều hơn nữa các thành viên tham gia xây dựng Văn
+                            Lang Gifts.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="goals-img">
+                <img src="/public/img/vanlangve.jpg" alt="barber man">
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- my-team -->
+    <section id="my-team">
+        <div class="title-text">
+            <p>MY TEAM</p>
+            <h1>Do All Together</h1>
+        </div>
+        <div class="my-team-row">
+            <div class="my-team-col">
+                <a href="https://twitter.com/CaoKhanhDuong">
+                    <div class="user">
+                        <img src="/public/img/duong.jpg" alt="img-1">
+                        <div class="user-info">
+                            <h4>KHANH DUONG <i class="fa fa-twitter"></i> </h4>
+                            <small>@ckhduong</small>
+                        </div>
+                    </div>
+                    <p>Information Technology student of Van Lang University. His dream is to become a web programmer.
                     </p>
-                </div>
+                </a>
             </div>
-            <h1>5.000 Users</h1>
-            <div class="goals-desc">
-                <div class="goal-icon">
-                    <i class="fa fa-check-square-o"></i>
-                </div>
-                <div class="goal-text">
-                    <p style="font-family:'Segoe UI'">
-                        5.000 bạn sinh viên Văn Lang tham gia Van Lang Gifts.
+            <div class="my-team-col">
+                <a>
+                    <div class="user">
+                        <img src="/public/img/user.png" alt="img-1">
+                        <div class="user-info">
+                            <h4>It's you<i class="fa fa-twitter"></i> </h4>
+                            <small>@I_love_you</small>
+                        </div>
+                    </div>
+                    <p class="join-us">
+                        <a href="">JOIN US</a>
                     </p>
-                </div>
+                </a>
             </div>
-            <h1>More And More</h1>
-            <div class="goals-desc">
-                <div class="goal-icon">
-                    <i class="fa fa-inr"></i>
+            <div class="my-team-col">
+                <div class="user">
+                    <img src="/public/img/bao.jpg" alt="img-1">
+                    <div class="user-info">
+                        <h4>THIEN BAO<i class="fa fa-twitter"></i> </h4>
+                        <small>@baothien</small>
+                    </div>
                 </div>
-                <div class="goal-text">
-                    <p style="font-family:'Segoe UI'">Nhiều và nhiều hơn nữa các thành viên tham gia xây dựng Văn Lang Gifts.
-                    </p>
-                </div>
+                <p>Information Technology student of Van Lang University. His dream is to become a web programmer.
+                </p>
             </div>
         </div>
-        <div class="goals-img">
-            <img src="/public/img/vanlangve.jpg" alt="barber man">
-        </div>
-    </div>
-</section>
-
-
-
-<!-- my-team -->
-<section id="my-team">
-    <div class="title-text">
-        <p>MY TEAM</p>
-        <h1>Do All Together</h1>
-    </div>
-    <div class="my-team-row">
-        <div class="my-team-col">
-            <a href="https://twitter.com/CaoKhanhDuong">
-            <div class="user">
-                <img src="/public/img/duong.jpg" alt="img-1">
-                <div class="user-info">
-                    <h4>KHANH DUONG <i class="fa fa-twitter"></i> </h4>
-                    <small>@ckhduong</small>
-                </div>
-            </div>
-            <p>Information Technology student of Van Lang University. His dream is to become a web programmer.
-            </p>
-            </a>
-        </div>
-        <div class="my-team-col">
-            <a>
-            <div class="user">
-                <img src="/public/img/user.png" alt="img-1">
-                <div class="user-info">
-                    <h4>It's you<i class="fa fa-twitter"></i> </h4>
-                    <small>@I_love_you</small>
-                </div>
-            </div>
-            <p class="join-us">
-                <a href="">JOIN US</a>
-            </p>
-            </a>
-        </div>
-        <div class="my-team-col">
-            <div class="user">
-                <img src="/public/img/bao.jpg" alt="img-1">
-                <div class="user-info">
-                    <h4>THIEN BAO<i class="fa fa-twitter"></i> </h4>
-                    <small>@baothien</small>
-                </div>
-            </div>
-            <p>Information Technology student of Van Lang University. His dream is to become a web programmer.
-            </p>
-        </div>
-    </div>
-</section>
+    </section>
 
 </div>
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
 
-    $(document).ready(function(){
-        var setAuto = 3000;
-        $('#myCarousel').carousel({
-            interval: setAuto,
-        })
-        $('#myCarousel').click(function(setAuto){
-            if(setAuto !== true){
-                setAuto = true;
-            } else {
-                setAuto = 3000;
+    var phone = '0972579495' // Số điện thoại người dùng;
+
+    localStorage.setItem("phone", phone);
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        $(document).ready(function () {
+            var setAuto = 3000;
+            $('#myCarousel').carousel({
+                interval: setAuto,
+            })
+            $('#myCarousel').click(function (setAuto) {
+                if (setAuto !== true) {
+                    setAuto = true;
+                } else {
+                    setAuto = 3000;
+                }
+            })
+        });
+
+        var itemSizeImage = document.getElementsByClassName('item-size-image');
+        for (var i = 0; i < itemSizeImage.length; i++) {
+            if (itemSizeImage[i].children[1] !== undefined) {
+                itemSizeImage[i].children[1].style.display = 'none';
             }
-        })
-    });
-
-    var itemSizeImage = document.getElementsByClassName('item-size-image');
-    for (var i = 0; i < itemSizeImage.length; i++) {
-        if (itemSizeImage[i].children[1] !== undefined) {
-            itemSizeImage[i].children[1].style.display = 'none';
         }
-    }
-  } )
+    })
 </script>
