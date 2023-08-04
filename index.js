@@ -56,7 +56,7 @@ const db = async () => {
 
 db();
 
-app.use('/src/public', express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use(
     express.urlencoded({
