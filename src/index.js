@@ -95,7 +95,7 @@ const hbs = exphbs.create({
 // TEMPLATE ENGINE
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
-app.set('views', path.join(__dirname, 'resources', 'views'));
+app.set('views', path.join(__dirname, './resources', 'views'));
 
 //HTTP logger
 app.use(morgan('combined'));
@@ -105,8 +105,8 @@ app.use(methodOverride('_method'));
 // Custom Middleware
 app.use(SortMiddleware);
 
-const User = require('../src/app/models/User');
-const Info = require('../src/app/models/Info');
+const User = require('./app/models/User');
+const Info = require('./app/models/Info');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
