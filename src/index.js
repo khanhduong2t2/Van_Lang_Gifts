@@ -39,8 +39,7 @@ app.use(session({ cookie: { maxAge: null } }));
 const db = async () => {
     try {
         await mongoose.connect(
-            process.env.MONGODB_URI ||
-            'mongodb+srv://khanhduong2t2:ngay2thang2@vanlanggiftsteam6.leeac.mongodb.net/',
+            process.env.MONGODB_URL,
             {
                 useNewUrlParser: true,
                 useUnifiedTopology: true,
